@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Pokédex</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+
+        <div class="logo">
+            <span class="pokeball">●</span>
+            PokemonInformation
+            <button class="language-toggle" type="button" data-language-toggle>EN</button>
+        </div>
+
+        <nav>
+            <a href="index.html">Pokédex</a>
+            <a class="nav-active" href="PokemonDatabase.html">PokemonDatabase</a>
+            <a href="Types.html">Types</a>
+            <a href="Meta.html">Meta</a>
+            <a href="Chatbot.html">Chatbot</a>
+            <a href="TeamBuilder.html">Team Builder</a>
+            <a href="DamageCalc.html">Damage Calc</a>
+        </nav>
+
+        <div class="header-search">
+            <span>🔍</span>
+            <input id="header-search-input" type="text" placeholder="Tìm Pokémon..." autocomplete="off">
+            <button id="header-search-button">Tìm</button>
+        </div>
+
+
+    </header>
+
+
+    <!-- HERO -->
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <p class="small-title">
+                THE ULTIMATE POKÉMON DATABASE
+            </p>
+
+            <h1>
+                POKEMON <span>INFORMATION</span>
+            </h1>
+
+            <p class="description">
+                Khám phá thông tin, chỉ số, hệ và tiến hóa
+                của hàng trăm Pokémon.
+            </p>
+
+
+            <!-- SEARCH -->
+            <div class="search-container">
+
+                <div class="search-box">
+
+                    <span>🔍</span>
+
+                    <input
+                        id="search-input"
+                        type="text"
+                        placeholder="Search Pokémon..."
+                        autocomplete="off"
+                    >
+
+                    <button id="search-button">
+                        Search
+                    </button>
+
+                </div>
+
+
+                <!-- SEARCH SUGGESTIONS -->
+                <div
+                    id="search-suggestions"
+                    class="search-suggestions"
+                >
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- POKEMON -->
+    <main class="container">
+
+        <div class="section-header">
+
+            <div>
+
+                <p class="section-label">
+                    POKÉDEX
+                </p>
+
+                <h2>
+                    Explore Pokémon
+                </h2>
+
+                <div class="sprite-mode-toggle" role="group" aria-label="Kiểu hiển thị Pokémon">
+                    <button class="sprite-mode-button active" data-sprite-mode="normal" type="button">Normal</button>
+                    <button class="sprite-mode-button" data-sprite-mode="shiny" type="button">Shiny</button>
+                </div>
+
+            </div>
+
+            <button class="filter-btn">
+                ☰ Filter
+            </button>
+
+        </div>
+
+
+        <div
+            class="pokemon-grid"
+            id="pokemon-grid"
+        >
+        </div>
+
+        <div class="load-more-container" id="load-more-container">
+            <button class="load-more-btn" id="load-more-btn" type="button">
+                <span class="load-more-icon">⌄</span>
+                <span class="load-more-text">Xem thêm Pokémon</span>
+            </button>
+        </div>
+
+    </main>
+
+
+    <!-- DONATE -->
+    <section class="donate-section">
+        <div class="donate-inner">
+            <div class="donate-copy">
+                <span class="donate-kicker">Ủng hộ người nghèo</span>
+                <h2>Mong mọi người ủng hộ mình cốc nước mía</h2>
+                <p>Mình cảm ơn mọi người đã ủng hộ và sử dụng web</p>
+                <div class="donate-bank-details">
+                    <div><span class="donate-detail-icon">🏦</span><span class="donate-detail-label">MB Bank</span></div>
+                    <div><span class="donate-detail-icon">💳</span><strong>8366336881711</strong></div>
+                    <div><span class="donate-detail-icon">👤</span><span><span class="donate-detail-label">Tên TK:</span> Nguyen Hoang Phuc</span></div>
+                </div>
+            </div>
+            <div class="donate-qr-wrap">
+                <img class="donate-qr" src="donate.jpg" alt="Mã QR ủng hộ Phúc" loading="lazy">
+                <span>Quét mã để ủng hộ</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+
+        <p>
+            © 2026 Pokédex Database
+        </p>
+
+    </footer>
+
+
+<!-- POKEMON DETAIL MODAL -->
+<div id="pokemon-modal" class="modal">
+    <div class="modal-content">
+        <button class="modal-close" id="modal-close">&times;</button>
+
+        <section class="pokemon-overview detail-card">
+            <div class="overview-image-wrap">
+                <div class="modal-sprite-toggle" role="group" aria-label="Kiểu ảnh Pokémon">
+                    <button class="modal-sprite-mode-button active" data-sprite-mode="normal" type="button">Normal</button>
+                    <button class="modal-sprite-mode-button" data-sprite-mode="shiny" type="button">Shiny</button>
+                </div>
+                <img id="overview-image" src="" alt="">
+                <div id="overview-types" class="overview-types"></div>
+            </div>
+            <div class="overview-details">
+                <h2 id="overview-name">Thông tin Pokémon</h2>
+                <div class="overview-grid">
+                    <div><span>Số National Dex</span><strong id="overview-number">—</strong></div>
+                    <div><span>Loài</span><strong id="overview-species">—</strong></div>
+                    <div><span>Chiều cao</span><strong id="overview-height">—</strong></div>
+                    <div><span>Cân nặng</span><strong id="overview-weight">—</strong></div>
+                    <div class="overview-abilities">
+                        <span>Kỹ năng</span>
+                        <div id="overview-abilities" class="abilities-list">—</div>
+                        <div id="ability-detail" class="ability-detail" hidden></div>
+                    </div>
+                </div>
+                <p class="overview-fact-label">Thông tin Pokédex nói rằng:</p>
+                <p id="overview-fact" class="overview-fact">—</p>
+            </div>
+        </section>
+        
+        <!-- TOP SECTION: BASE STATS & TYPE DEFENSES -->
+        <div class="modal-grid-2">
+            <!-- BASE STATS -->
+            <div class="detail-card">
+                <h3 class="card-title">BASE STATS</h3>
+                <div class="stats-list">
+                    <div class="stat-row"><span class="stat-label">HP</span><span class="stat-val">35</span><div class="stat-bar-bg"><div class="stat-bar" style="width: 14%;"></div></div></div>
+                    <div class="stat-row"><span class="stat-label">ATK</span><span class="stat-val">55</span><div class="stat-bar-bg"><div class="stat-bar" style="width: 22%;"></div></div></div>
+                    <div class="stat-row"><span class="stat-label">DEF</span><span class="stat-val">40</span><div class="stat-bar-bg"><div class="stat-bar" style="width: 16%;"></div></div></div>
+                    <div class="stat-row"><span class="stat-label">SPA</span><span class="stat-val">50</span><div class="stat-bar-bg"><div class="stat-bar" style="width: 20%;"></div></div></div>
+                    <div class="stat-row"><span class="stat-label">SPD</span><span class="stat-val">50</span><div class="stat-bar-bg"><div class="stat-bar" style="width: 20%;"></div></div></div>
+                    <div class="stat-row"><span class="stat-label">SPE</span><span class="stat-val">90</span><div class="stat-bar-bg"><div class="stat-bar" style="width: 36%;"></div></div></div>
+                </div>
+            </div>
+
+            <!-- TYPE DEFENSES -->
+            <div class="detail-card">
+                <h3 class="card-title">TYPE DEFENSES</h3>
+                <div class="type-defenses-grid">
+                    <div class="type-def-item"><span class="type electric">ELECTRIC</span><span class="mult x05">0.5x</span></div>
+                    <div class="type-def-item"><span class="type flying">FLYING</span><span class="mult x05">0.5x</span></div>
+                    <div class="type-def-item"><span class="type ground">GROUND</span><span class="mult x2">2x</span></div>
+                    <div class="type-def-item"><span class="type steel">STEEL</span><span class="mult x05">0.5x</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EVOLUTION CHART -->
+        <div class="detail-card margin-top">
+            <h3 class="card-title">EVOLUTION CHART</h3>
+            <div class="evolution-chain">
+                <div class="evo-stage">
+                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/172.png" alt="Pichu">
+                    <span>Pichu</span>
+                </div>
+                <div class="evo-arrow">
+                    <span class="evo-cond">Friendship</span>
+                    ➔
+                </div>
+                <div class="evo-stage active">
+                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" alt="Pikachu">
+                    <span>Pikachu</span>
+                </div>
+                <div class="evo-arrow">
+                    <span class="evo-cond">Thunder Stone</span>
+                    ➔
+                </div>
+                <div class="evo-stage">
+                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/26.png" alt="Raichu">
+                    <span>Raichu</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- MOVE LEARNSET -->
+        <div class="detail-card margin-top">
+            <h3 class="card-title">MOVE LEARNSET</h3>
+            
+            <div class="move-search-box">
+                🔍 <input type="text" id="move-search" placeholder="Search a move...">
+            </div>
+
+            <div class="move-version-tabs" role="tablist" aria-label="Game version">
+                <button class="move-version-tab active" data-version-group="champions">Pokémon Champions</button>
+                <button class="move-version-tab" data-version-group="mega-dimension">Mega Dimension</button>
+                <button class="move-version-tab" data-version-group="legends-za">Legends: Z-A</button>
+                <button class="move-version-tab" data-version-group="scarlet-violet">Scarlet/Violet</button>
+                <button class="move-version-tab" data-version-group="sword-shield">Gen 8</button>
+                <button class="move-version-tab" data-version-group="sun-moon">Gen 7</button>
+                <button class="move-version-tab" data-version-group="x-y">Gen 6</button>
+                <button class="move-version-tab" data-version-group="black-white">Gen 5</button>
+                <button class="move-version-tab" data-version-group="diamond-pearl">Gen 4</button>
+                <button class="move-version-tab" data-version-group="ruby-sapphire">Gen 3</button>
+                <button class="move-version-tab" data-version-group="gold-silver">Gen 2</button>
+                <button class="move-version-tab" data-version-group="red-blue">Gen 1</button>
+            </div>
+            <div id="move-detail" class="move-detail" hidden>
+                <strong class="move-detail-name"></strong>
+                <p class="move-detail-text"></p>
+            </div>
+            <!-- LEVEL UP MOVES -->
+            <div class="move-table-wrapper">
+                <h4 class="table-subtitle">LEVEL UP</h4>
+                <table class="move-table">
+                    <thead>
+                        <tr>
+                            <th>LV</th>
+                            <th>MOVE</th>
+                            <th>TYPE</th>
+                            <th>CAT</th>
+                            <th>PWR</th>
+                            <th>ACC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td class="move-name">Thunder Shock</td>
+                            <td><span class="type electric">ELECTRIC</span></td>
+                            <td><span class="cat special" aria-label="Special"></span></td>
+                            <td>40</td>
+                            <td>100</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td class="move-name">Tail Whip</td>
+                            <td><span class="type normal">NORMAL</span></td>
+                            <td><span class="cat status" aria-label="Status"></span></td>
+                            <td>—</td>
+                            <td>100</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td class="move-name">Quick Attack</td>
+                            <td><span class="type normal">NORMAL</span></td>
+                            <td><span class="cat physical" aria-label="Physical"></span></td>
+                            <td>40</td>
+                            <td>100</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- TM / MACHINE MOVES -->
+            <div class="move-table-wrapper margin-top-sm">
+                <h4 class="table-subtitle">TM / MACHINE</h4>
+                <table class="move-table">
+                    <thead>
+                        <tr>
+                            <th>TM</th>
+                            <th>MOVE</th>
+                            <th>TYPE</th>
+                            <th>CAT</th>
+                            <th>PWR</th>
+                            <th>ACC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>TM01</td>
+                            <td class="move-name">Take Down</td>
+                            <td><span class="type normal">NORMAL</span></td>
+                            <td><span class="cat physical" aria-label="Physical"></span></td>
+                            <td>90</td>
+                            <td>85</td>
+                        </tr>
+                        <tr>
+                            <td>TM04</td>
+                            <td class="move-name">Agility</td>
+                            <td><span class="type psychic">PSYCHIC</span></td>
+                            <td><span class="cat status" aria-label="Status"></span></td>
+                            <td>—</td>
+                            <td>—</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="language.js"></script>
+<script src="script.js"></script>
+</body>
+
+</html>
