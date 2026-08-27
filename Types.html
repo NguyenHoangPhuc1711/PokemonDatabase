@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Bảng hệ | PokemonInformation</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+
+        <div class="logo">
+            <span class="pokeball">●</span>
+            PokemonInformation
+            <button class="language-toggle" type="button" data-language-toggle>EN</button>
+        </div>
+
+        <nav>
+            <a href="index.html">Pokédex</a>
+            <a href="PokemonDatabase.html">PokemonDatabase</a>
+            <a class="nav-active" href="Types.html">Types</a>
+            <a href="Meta.html">Meta</a>
+            <a href="Chatbot.html">Chatbot</a>
+            <a href="TeamBuilder.html">Team Builder</a>
+            <a href="DamageCalc.html">Damage Calc</a>
+        </nav>
+
+        <div class="header-search">
+            <span>🔍</span>
+            <input id="header-search-input" type="text" placeholder="Tìm Pokémon..." autocomplete="off">
+            <button id="header-search-button">Tìm</button>
+        </div>
+
+
+    </header>
+
+
+    <!-- HERO -->
+    <section class="hero types-hero">
+
+        <div class="hero-content">
+
+            <p class="small-title">
+                TYPE EFFECTIVENESS
+            </p>
+
+            <h1>
+                BẢNG <span>TƯƠNG KHẮC</span> HỆ
+            </h1>
+
+            <p class="description">
+                Chọn một hệ bên dưới để xem hệ đó tấn công mạnh/yếu vào đâu,
+                và bị hệ nào khắc chế khi phòng thủ.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- MAIN -->
+    <main class="container">
+
+        <div class="section-header">
+            <div>
+                <p class="section-label">CHỌN HỆ</p>
+                <h2>18 hệ Pokémon</h2>
+            </div>
+        </div>
+
+        <!-- TYPE PICKER -->
+        <div class="type-select-grid" id="type-select-grid"></div>
+
+
+        <!-- PROS & CONS -->
+        <div class="type-pros-cons-grid">
+
+            <div class="detail-card type-pros-card">
+                <h3 class="card-title">
+                    TẤN CÔNG <em id="attack-type-label">—</em> ƯU &amp; NHƯỢC ĐIỂM
+                </h3>
+
+                <div class="pros-cons-block">
+                    <p class="pros-cons-heading pros">
+                        <span class="pros-cons-icon good">✓</span>
+                        Đòn <em id="attack-name-1">—</em> gây <strong>sát thương chí mạng</strong> (2x) lên:
+                    </p>
+                    <div class="type-badge-row" id="attack-super-list"></div>
+                </div>
+
+                <div class="pros-cons-block">
+                    <p class="pros-cons-heading cons">
+                        <span class="pros-cons-icon bad">✕</span>
+                        Đòn <em id="attack-name-2">—</em> gây <strong>ít sát thương</strong> (0.5x) lên:
+                    </p>
+                    <div class="type-badge-row" id="attack-notvery-list"></div>
+                </div>
+
+                <div class="pros-cons-block" id="attack-noeffect-block" hidden>
+                    <p class="pros-cons-heading none">
+                        <span class="pros-cons-icon none">–</span>
+                        Đòn <em id="attack-name-3">—</em> <strong>không có tác dụng</strong> (0x) lên:
+                    </p>
+                    <div class="type-badge-row" id="attack-noeffect-list"></div>
+                </div>
+            </div>
+
+            <div class="detail-card type-pros-card">
+                <h3 class="card-title">
+                    PHÒNG THỦ <em id="defense-type-label">—</em> ƯU &amp; NHƯỢC ĐIỂM
+                </h3>
+
+                <div class="pros-cons-block">
+                    <p class="pros-cons-heading pros">
+                        <span class="pros-cons-icon good">✓</span>
+                        Các hệ này <strong>gây ít sát thương</strong> lên hệ <em id="defense-name-1">—</em>:
+                    </p>
+                    <div class="type-badge-row" id="defense-resist-list"></div>
+                </div>
+
+                <div class="pros-cons-block">
+                    <p class="pros-cons-heading cons">
+                        <span class="pros-cons-icon bad">✕</span>
+                        Các hệ này <strong>khắc chế</strong> hệ <em id="defense-name-2">—</em>:
+                    </p>
+                    <div class="type-badge-row" id="defense-weak-list"></div>
+                </div>
+
+                <div class="pros-cons-block" id="defense-immune-block" hidden>
+                    <p class="pros-cons-heading none">
+                        <span class="pros-cons-icon none">–</span>
+                        Hệ <em id="defense-name-3">—</em> <strong>miễn nhiễm</strong> với:
+                    </p>
+                    <div class="type-badge-row" id="defense-immune-list"></div>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- DUAL TYPE CHART -->
+        <div class="detail-card dual-type-card margin-top">
+            <h3 class="card-title">
+                BIỂU ĐỒ TẤN CÔNG <em id="dual-type-label">—</em> VỚI HỆ ĐÔI
+            </h3>
+
+            <p class="dual-type-desc" id="dual-type-desc">
+                Chọn một hệ ở trên để xem.
+            </p>
+
+            <div class="type-chart-legend">
+                <span><i class="legend-swatch swatch-4"></i> 4x</span>
+                <span><i class="legend-swatch swatch-2"></i> 2x</span>
+                <span><i class="legend-swatch swatch-1"></i> 1x</span>
+                <span><i class="legend-swatch swatch-05"></i> ½x</span>
+                <span><i class="legend-swatch swatch-025"></i> ¼x</span>
+                <span><i class="legend-swatch swatch-0"></i> 0x</span>
+            </div>
+
+            <div class="type-chart-wrapper">
+                <table class="type-chart-table" id="type-chart-table"></table>
+            </div>
+        </div>
+
+    </main>
+
+
+    <!-- DONATE -->
+    <section class="donate-section">
+        <div class="donate-inner"><div class="donate-copy"><span class="donate-kicker">Ủng hộ người nghèo</span><h2>Mong mọi người ủng hộ mình cốc nước mía</h2><p>Phúc xin cảm ơn mọi người đã dùng Web.</p><div class="donate-bank-details"><div><span class="donate-detail-icon">🏦</span><span class="donate-detail-label">MB Bank</span></div><div><span class="donate-detail-icon">💳</span><strong>8366336881711</strong></div><div><span class="donate-detail-icon">👤</span><span><span class="donate-detail-label">Tên TK:</span> Nguyen Hoang Phuc</span></div></div></div><div class="donate-qr-wrap"><img class="donate-qr" src="donate.jpg" alt="Mã QR ủng hộ Phúc" loading="lazy"><span>Quét mã để ủng hộ</span></div></div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+
+        <p>
+            © 2026 Pokédex Database
+        </p>
+
+    </footer>
+
+
+    <script>
+        const headerSearchInput = document.getElementById("header-search-input");
+        const headerSearchButton = document.getElementById("header-search-button");
+
+        function openDatabase(searchValue) {
+            const search = searchValue.trim();
+            const destination = search
+                ? `PokemonDatabase.html?search=${encodeURIComponent(search)}`
+                : "PokemonDatabase.html";
+
+            window.location.href = destination;
+        }
+
+        headerSearchButton.addEventListener("click", () => {
+            openDatabase(headerSearchInput.value);
+        });
+
+        headerSearchInput.addEventListener("keydown", event => {
+            if (event.key === "Enter") openDatabase(headerSearchInput.value);
+        });
+    </script>
+
+    <script src="language.js"></script>
+    <script src="types.js"></script>
+</body>
+
+</html>

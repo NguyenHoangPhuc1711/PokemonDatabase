@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokeDex | PokemonInformation</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .home-nav-link {
+            color: white;
+            font-weight: bold;
+        }
+
+        .home-search-message {
+            display: none;
+            margin-top: 18px;
+            color: #a9afbd;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo">
+            <span class="pokeball">●</span>
+            PokemonInformation
+            <button class="language-toggle" type="button" data-language-toggle>EN</button>
+        </div>
+
+        <nav>
+            <a class="nav-active" href="index.html">Pokédex</a>
+            <a href="PokemonDatabase.html">PokemonDatabase</a>
+            <a href="Types.html">Types</a>
+            <a href="Meta.html">Meta</a>
+            <a href="Chatbot.html">Chatbot</a>
+            <a href="TeamBuilder.html">Team Builder</a>
+            <a href="DamageCalc.html">Damage Calc</a>
+        </nav>
+
+        <div class="header-search">
+            <span>🔍</span>
+            <input id="header-search-input" type="text" placeholder="Tìm Pokémon..." autocomplete="off">
+            <button id="header-search-button">Tìm</button>
+        </div>
+
+    </header>
+
+    <main>
+        <section class="home-hero">
+            <div class="hero-copy">
+                <div class="hero-brand">
+                    <span class="hero-pokeball-logo" aria-hidden="true">
+                        <span></span>
+                    </span>
+                    <span class="hero-brand-text">
+                        <strong>PokemonInformation</strong>
+                        <em>Pokédex toàn diện cho mọi Trainer</em>
+                    </span>
+                </div>
+                <h1>Khám phá thế giới <span>Pokémon</span></h1>
+                <p class="hero-slogan">Thông tin , Dữ liệu , Cập nhật meta chuẩn xác</p>
+                <a class="hero-action" href="PokemonDatabase.html">Khám phá Pokédex <span>→</span></a>
+            </div>
+
+            <div class="hero-art hero-art-left">
+                <img id="hero-pokemon-image" src="hero-pokemon.png" alt="Pokémon minh họa 1" decoding="async" fetchpriority="high">
+                <div class="hero-pokemon-controls" aria-label="Chọn Pokémon nổi bật">
+                    <button id="hero-pokemon-prev" type="button" aria-label="Ảnh trước">‹</button>
+                    <div class="hero-pokemon-dots" id="hero-pokemon-dots"></div>
+                    <button id="hero-pokemon-next" type="button" aria-label="Ảnh tiếp theo">›</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const headerSearchInput = document.getElementById("header-search-input");
+        const headerSearchButton = document.getElementById("header-search-button");
+
+        function openDatabase(searchValue) {
+            const search = searchValue.trim();
+            const destination = search
+                ? `PokemonDatabase.html?search=${encodeURIComponent(search)}`
+                : "PokemonDatabase.html";
+
+            window.location.href = destination;
+        }
+
+        headerSearchButton.addEventListener("click", () => {
+            openDatabase(headerSearchInput.value);
+        });
+
+        headerSearchInput.addEventListener("keydown", event => {
+            if (event.key === "Enter") openDatabase(headerSearchInput.value);
+        });
+
+    </script>
+    <script>
+        const heroPokemonImage = document.getElementById("hero-pokemon-image");
+        const heroPokemonDots = document.getElementById("hero-pokemon-dots");
+        const heroPokemonImages = ["hero-pokemon.png", 1, 2, 3, 4, 5].map(image =>
+            typeof image === "number" ? `pokemon ${image}.png` : image
+        );
+        let heroPokemonIndex = 0;
+
+        function preloadHeroPokemon(index) {
+            const image = new Image();
+            image.src = heroPokemonImages[(index + heroPokemonImages.length) % heroPokemonImages.length];
+        }
+
+        function renderHeroPokemon(index) {
+            heroPokemonIndex = (index + heroPokemonImages.length) % heroPokemonImages.length;
+            heroPokemonImage.classList.remove("is-changing");
+            void heroPokemonImage.offsetWidth;
+            heroPokemonImage.src = heroPokemonImages[heroPokemonIndex];
+            heroPokemonImage.alt = `Pokémon minh họa ${heroPokemonIndex + 1}`;
+            heroPokemonImage.classList.add("is-raised");
+            heroPokemonImage.classList.toggle("is-large", heroPokemonIndex >= 2);
+            heroPokemonImage.classList.toggle("is-small", heroPokemonIndex === 5);
+            heroPokemonImage.classList.add("is-changing");
+            heroPokemonDots.querySelectorAll("button").forEach((dot, dotIndex) => {
+                dot.classList.toggle("active", dotIndex === heroPokemonIndex);
+            });
+            preloadHeroPokemon(heroPokemonIndex + 1);
+        }
+
+        heroPokemonDots.innerHTML = heroPokemonImages.map((_, index) =>
+            `<button type="button" aria-label="Hiển thị ảnh ${index + 1}"></button>`
+        ).join("");
+        heroPokemonDots.querySelectorAll("button").forEach((dot, index) => {
+            dot.addEventListener("click", () => renderHeroPokemon(index));
+        });
+        document.getElementById("hero-pokemon-prev").addEventListener("click", () => renderHeroPokemon(heroPokemonIndex - 1));
+        document.getElementById("hero-pokemon-next").addEventListener("click", () => renderHeroPokemon(heroPokemonIndex + 1));
+        renderHeroPokemon(0);
+        setInterval(() => renderHeroPokemon(heroPokemonIndex + 1), 20000);
+    </script>
+    <script src="language.js"></script>
+</body>
+
+</html>

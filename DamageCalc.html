@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Damage Calculator | PokemonInformation</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+
+        <div class="logo">
+            <span class="pokeball">●</span>
+            PokemonInformation
+            <button class="language-toggle" type="button" data-language-toggle>EN</button>
+        </div>
+
+        <nav>
+            <a href="index.html">Pokédex</a>
+            <a href="PokemonDatabase.html">PokemonDatabase</a>
+            <a href="Types.html">Types</a>
+            <a href="Meta.html">Meta</a>
+            <a href="Chatbot.html">Chatbot</a>
+            <a href="TeamBuilder.html">Team Builder</a>
+            <a class="nav-active" href="DamageCalc.html">Damage Calc</a>
+        </nav>
+
+        <div class="header-search">
+            <span>🔍</span>
+            <input id="header-search-input" type="text" placeholder="Tìm Pokémon..." autocomplete="off">
+            <button id="header-search-button">Tìm</button>
+        </div>
+
+
+    </header>
+
+
+    <!-- HERO -->
+    <section class="hero dc-hero">
+
+        <div class="hero-content">
+
+            <p class="small-title">
+                DAMAGE ESTIMATION
+            </p>
+
+            <h1>
+                TÍNH <span>SÁT THƯƠNG</span>
+            </h1>
+
+            <p class="description">
+                Ước lượng sát thương giữa 2 Pokémon — công thức game chuẩn Level 50, IV 31 cố định và EV tuỳ chỉnh.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- MAIN -->
+    <main class="container dc-container">
+
+        <div class="dc-columns">
+
+            <!-- ATTACKER -->
+            <div class="detail-card dc-card">
+                <h3 class="card-title">⚔️ BÊN TẤN CÔNG</h3>
+
+                <div class="dc-search-wrap" id="dc-atk-wrap">
+                    <div class="meta-search-box">
+                        <span>🔍</span>
+                        <input id="dc-atk-input" type="text" placeholder="Chọn Pokémon tấn công..." autocomplete="off">
+                    </div>
+                    <div class="search-suggestions" id="dc-atk-suggestions"></div>
+                </div>
+
+                <div class="dc-pokemon-preview" id="dc-atk-preview"></div>
+
+                <div class="dc-field" id="dc-atk-nature-field" hidden>
+                    <label class="dc-label">Bản chất (Nature)</label>
+                    <select id="dc-atk-nature" class="dc-select"></select>
+                </div>
+
+                <div class="dc-field" id="dc-atk-ev-field" hidden>
+                    <label class="dc-label">
+                        EV
+                        <span class="dc-ev-total" id="dc-atk-ev-total">0 / 510</span>
+                    </label>
+                    <div class="dc-ev-grid" id="dc-atk-ev-grid"></div>
+                </div>
+
+                <div class="dc-field" id="dc-move-field" hidden>
+                    <label class="dc-label">Chiêu thức</label>
+                    <input id="dc-move-search" class="dc-search-input" type="search" placeholder="Tìm tên chiêu thức..." autocomplete="off">
+                    <select id="dc-move-select" class="dc-select"></select>
+                </div>
+
+                <div class="dc-field" id="dc-atk-ability-field" hidden>
+                    <label class="dc-label">Ability</label>
+                    <select id="dc-atk-ability" class="dc-select"></select>
+                    <p class="dc-ability-help" id="dc-atk-ability-help"></p>
+                </div>
+
+                <div class="dc-boost-row" id="dc-atk-boost-row" hidden>
+                    <label class="dc-label">Buff/Debuff sức tấn công</label>
+                    <select id="dc-atk-stage" class="dc-select">
+                        <option value="-2">-2</option>
+                        <option value="-1">-1</option>
+                        <option value="0" selected>0 (bình thường)</option>
+                        <option value="1">+1</option>
+                        <option value="2">+2</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- DEFENDER -->
+            <div class="detail-card dc-card">
+                <h3 class="card-title">🛡️ BÊN PHÒNG THỦ</h3>
+
+                <div class="dc-search-wrap" id="dc-def-wrap">
+                    <div class="meta-search-box">
+                        <span>🔍</span>
+                        <input id="dc-def-input" type="text" placeholder="Chọn Pokémon phòng thủ..." autocomplete="off">
+                    </div>
+                    <div class="search-suggestions" id="dc-def-suggestions"></div>
+                </div>
+
+                <div class="dc-pokemon-preview" id="dc-def-preview"></div>
+
+                <div class="dc-field" id="dc-def-nature-field" hidden>
+                    <label class="dc-label">Bản chất (Nature)</label>
+                    <select id="dc-def-nature" class="dc-select"></select>
+                </div>
+
+                <div class="dc-field" id="dc-def-ev-field" hidden>
+                    <label class="dc-label">
+                        EV
+                        <span class="dc-ev-total" id="dc-def-ev-total">0 / 510</span>
+                    </label>
+                    <div class="dc-ev-grid" id="dc-def-ev-grid"></div>
+                </div>
+
+                <div class="dc-boost-row" id="dc-def-boost-row" hidden>
+                    <label class="dc-label">Buff/Debuff phòng thủ</label>
+                    <select id="dc-def-stage" class="dc-select">
+                        <option value="-2">-2</option>
+                        <option value="-1">-1</option>
+                        <option value="0" selected>0 (bình thường)</option>
+                        <option value="1">+1</option>
+                        <option value="2">+2</option>
+                    </select>
+                </div>
+
+                <div class="dc-field" id="dc-def-ability-field" hidden>
+                    <label class="dc-label">Ability</label>
+                    <select id="dc-def-ability" class="dc-select"></select>
+                    <p class="dc-ability-help" id="dc-def-ability-help"></p>
+                </div>
+            </div>
+
+        </div>
+
+        <section class="detail-card dc-battle-settings">
+            <h3 class="card-title">⚙️ ĐIỀU KIỆN TRẬN ĐẤU</h3>
+            <div class="dc-settings-grid">
+                <div class="dc-field">
+                    <label class="dc-label" for="dc-atk-item">Item bên Attacker</label>
+                    <select id="dc-atk-item" class="dc-select">
+                        <option value="none">Không có item</option>
+                        <option value="choice-band">Choice Band</option>
+                        <option value="choice-specs">Choice Specs</option>
+                        <option value="life-orb">Life Orb</option>
+                        <option value="expert-belt">Expert Belt</option>
+                        <option value="muscle-band">Muscle Band</option>
+                        <option value="wise-glasses">Wise Glasses</option>
+                        <option value="mystic-water">Mystic Water (+20% Water)</option>
+                        <option value="charcoal">Charcoal (+20% Fire)</option>
+                        <option value="miracle-seed">Miracle Seed (+20% Grass)</option>
+                        <option value="magnet">Magnet (+20% Electric)</option>
+                        <option value="never-melt-ice">Never-Melt Ice (+20% Ice)</option>
+                        <option value="black-belt">Black Belt (+20% Fighting)</option>
+                        <option value="poison-barb">Poison Barb (+20% Poison)</option>
+                        <option value="soft-sand">Soft Sand (+20% Ground)</option>
+                        <option value="sharp-beak">Sharp Beak (+20% Flying)</option>
+                        <option value="twisted-spoon">Twisted Spoon (+20% Psychic)</option>
+                        <option value="silver-powder">Silver Powder (+20% Bug)</option>
+                        <option value="hard-stone">Hard Stone (+20% Rock)</option>
+                        <option value="spell-tag">Spell Tag (+20% Ghost)</option>
+                        <option value="dragon-fang">Dragon Fang (+20% Dragon)</option>
+                        <option value="black-glasses">Black Glasses (+20% Dark)</option>
+                        <option value="metal-coat">Metal Coat (+20% Steel)</option>
+                        <option value="pixie-plate">Pixie Plate (+20% Fairy)</option>
+                    </select>
+                    <div class="dc-selection-preview" id="dc-atk-item-preview" aria-live="polite"></div>
+                </div>
+                <div class="dc-field">
+                    <label class="dc-label" for="dc-def-item">Item bên Defender</label>
+                    <select id="dc-def-item" class="dc-select">
+                        <option value="none">Không có item</option>
+                        <option value="eviolite">Eviolite</option>
+                        <option value="assault-vest">Assault Vest</option>
+                    </select>
+                    <div class="dc-selection-preview" id="dc-def-item-preview" aria-live="polite"></div>
+                </div>
+                <div class="dc-field">
+                    <label class="dc-label" for="dc-weather">Thời tiết</label>
+                    <select id="dc-weather" class="dc-select">
+                        <option value="none">Không có</option>
+                        <option value="sun">Nắng</option>
+                        <option value="rain">Mưa</option>
+                        <option value="sand">Bão cát</option>
+                        <option value="snow">Tuyết</option>
+                    </select>
+                    <div class="dc-selection-preview" id="dc-weather-preview" aria-live="polite"></div>
+                </div>
+                <div class="dc-field">
+                    <label class="dc-label" for="dc-terrain">Terrain</label>
+                    <select id="dc-terrain" class="dc-select">
+                        <option value="none">Không có</option>
+                        <option value="electric">Electric Terrain</option>
+                        <option value="grassy">Grassy Terrain</option>
+                        <option value="psychic">Psychic Terrain</option>
+                        <option value="misty">Misty Terrain</option>
+                    </select>
+                </div>
+                <label class="dc-check-field">
+                    <input id="dc-helping-hand" type="checkbox">
+                    <span>Được Helping Hand</span>
+                </label>
+                <label class="dc-check-field">
+                    <input id="dc-crit" type="checkbox">
+                    <span>Đòn đánh chí mạng</span>
+                </label>
+                <label class="dc-check-field">
+                    <input id="dc-atk-low-hp" type="checkbox">
+                    <span>Attacker còn ≤ 1/3 HP</span>
+                </label>
+                <label class="dc-check-field">
+                    <input id="dc-def-full-hp" type="checkbox" checked>
+                    <span>Defender còn đầy HP</span>
+                </label>
+                <label class="dc-check-field">
+                    <input id="dc-def-disguise" type="checkbox" checked>
+                    <span>Disguise của Defender chưa vỡ</span>
+                </label>
+                <div class="dc-field">
+                    <label class="dc-label" for="dc-def-status">Status của Defender</label>
+                    <select id="dc-def-status" class="dc-select">
+                        <option value="none">Không bị status</option>
+                        <option value="burn">Burn</option>
+                        <option value="poison">Poison</option>
+                        <option value="toxic">Toxic</option>
+                        <option value="paralysis">Paralysis</option>
+                        <option value="sleep">Sleep</option>
+                        <option value="freeze">Freeze</option>
+                    </select>
+                </div>
+                <label class="dc-check-field">
+                    <input id="dc-def-ice-face" type="checkbox" checked>
+                    <span>Ice Face của Defender chưa vỡ</span>
+                </label>
+                <div class="dc-field">
+                    <label class="dc-label" for="dc-atk-status">Status của Attacker</label>
+                    <select id="dc-atk-status" class="dc-select">
+                        <option value="none">Không bị status</option>
+                        <option value="burn">Burn</option>
+                        <option value="poison">Poison</option>
+                        <option value="toxic">Toxic</option>
+                        <option value="paralysis">Paralysis</option>
+                    </select>
+                </div>
+                <label class="dc-check-field">
+                    <input id="dc-flash-fire" type="checkbox">
+                    <span>Flash Fire đã kích hoạt</span>
+                </label>
+                <label class="dc-check-field">
+                    <input id="dc-def-switched-in" type="checkbox">
+                    <span>Defender vừa switch in</span>
+                </label>
+                <label class="dc-check-field">
+                    <input id="dc-attacker-moves-second" type="checkbox">
+                    <span>Attacker đi sau</span>
+                </label>
+                <div class="dc-field">
+                    <label class="dc-label" for="dc-rivalry">Giới tính</label>
+                    <select id="dc-rivalry" class="dc-select">
+                        <option value="unknown">Không xác định</option>
+                        <option value="same">Cùng giới</option>
+                        <option value="different">Khác giới</option>
+                    </select>
+                </div>
+                <div class="dc-field">
+                    <label class="dc-label" for="dc-fainted-allies">Số đồng đội Attacker đã bị hạ</label>
+                    <select id="dc-fainted-allies" class="dc-select">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <div class="dc-calculate-action">
+            <button id="dc-start-calc" class="dc-start-calc" type="button" disabled>
+                ⚡ Bắt đầu tính dame
+            </button>
+            <p id="dc-calc-status" class="dc-calc-status" aria-live="polite">
+                Vui lòng chọn đủ Pokémon để tính dame.
+            </p>
+        </div>
+
+        <!-- RESULT -->
+        <div class="detail-card dc-result margin-top" id="dc-result">
+            <p class="meta-detail-placeholder">
+                👆 Chọn Pokémon tấn công, chiêu thức, và Pokémon phòng thủ để xem kết quả.
+            </p>
+        </div>
+
+        <p class="dc-disclaimer">
+            ⚠️ Công cụ dùng công thức Pokémon chuẩn Level 50, IV 31 cố định, EV tối đa 252 mỗi chỉ số và tổng 510 EV.
+            Nature, Ability, item, thời tiết, terrain, chí mạng, Helping Hand, STAB, khắc hệ và 39 mức random damage được áp dụng.
+            Ability phụ thuộc HP chỉ được kích hoạt khi bật điều kiện HP thấp. Chưa tính màn chắn, burn, stat boost phát sinh từ lượt trước và hiệu ứng tình huống khác.
+        </p>
+
+        <details class="dc-algorithm">
+            <summary>Thuật toán tính damage</summary>
+            <ol>
+                <li>Tính stat Level 50 từ Base Stat, IV 31, EV và Nature: HP = floor((2 × Base + IV + floor(EV/4)) × 50/100) + 60; stat khác = floor((floor((2 × Base + IV + floor(EV/4)) × 50/100) + 5) × Nature).</li>
+                <li>Áp dụng stage, Ability thay đổi stat, item stat và các điều kiện HP/weather.</li>
+                <li>Xác định type, Base Power sau Ability, STAB và type effectiveness.</li>
+                <li>Áp dụng weather, terrain, item damage, Ability phòng thủ, critical hit và Helping Hand theo thứ tự modifier.</li>
+                <li>Tính đủ 39 roll ngẫu nhiên từ 217 đến 255; kết quả là min-max thực tế.</li>
+            </ol>
+        </details>
+
+    </main>
+
+    <!-- DONATE -->
+    <section class="donate-section">
+        <div class="donate-inner"><div class="donate-copy"><span class="donate-kicker">Ủng hộ người nghèo</span><h2>Mong mọi người ủng hộ mình cốc nước mía</h2><p>Phúc xin cảm ơn mọi người đã dùng Web.</p><div class="donate-bank-details"><div><span class="donate-detail-icon">🏦</span><span class="donate-detail-label">MB Bank</span></div><div><span class="donate-detail-icon">💳</span><strong>8366336881711</strong></div><div><span class="donate-detail-icon">👤</span><span><span class="donate-detail-label">Tên TK:</span> Nguyen Hoang Phuc</span></div></div></div><div class="donate-qr-wrap"><img class="donate-qr" src="donate.jpg" alt="Mã QR ủng hộ Phúc" loading="lazy"><span>Quét mã để ủng hộ</span></div></div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+
+        <p>
+            © 2026 Pokédex Database
+        </p>
+
+    </footer>
+
+
+    <script>
+        const headerSearchInput = document.getElementById("header-search-input");
+        const headerSearchButton = document.getElementById("header-search-button");
+
+        function openDatabase(searchValue) {
+            const search = searchValue.trim();
+            const destination = search
+                ? `PokemonDatabase.html?search=${encodeURIComponent(search)}`
+                : "PokemonDatabase.html";
+
+            window.location.href = destination;
+        }
+
+        headerSearchButton.addEventListener("click", () => {
+            openDatabase(headerSearchInput.value);
+        });
+
+        headerSearchInput.addEventListener("keydown", event => {
+            if (event.key === "Enter") openDatabase(headerSearchInput.value);
+        });
+    </script>
+
+    <script src="language.js"></script>
+    <script src="typechart-data.js"></script>
+    <script src="damagecalc.js"></script>
+</body>
+
+</html>

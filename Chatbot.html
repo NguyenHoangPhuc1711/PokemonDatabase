@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Chatbot | PokemonInformation</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+
+        <div class="logo">
+            <span class="pokeball">●</span>
+            PokemonInformation
+            <button class="language-toggle" type="button" data-language-toggle>EN</button>
+        </div>
+
+        <nav>
+            <a href="index.html">Pokédex</a>
+            <a href="PokemonDatabase.html">PokemonDatabase</a>
+            <a href="Types.html">Types</a>
+            <a href="Meta.html">Meta</a>
+            <a class="nav-active" href="Chatbot.html">Chatbot</a>
+            <a href="TeamBuilder.html">Team Builder</a>
+            <a href="DamageCalc.html">Damage Calc</a>
+        </nav>
+
+        <div class="header-search">
+            <span>🔍</span>
+            <input id="header-search-input" type="text" placeholder="Tìm Pokémon..." autocomplete="off">
+            <button id="header-search-button">Tìm</button>
+        </div>
+
+
+    </header>
+
+
+
+    </section>
+
+
+    <!-- CHAT -->
+    <main class="container chatbot-container">
+
+        <div class="chat-window">
+
+            <div class="chat-messages" id="chat-messages"></div>
+
+            <div class="chat-suggestions" id="chat-suggestions"></div>
+
+            <div class="chat-input-row">
+                <div class="chat-input-wrap">
+                    <input
+                        id="chat-input"
+                        type="text"
+                        placeholder="Vd: gợi ý build cho basculegion..."
+                        autocomplete="off"
+                    >
+                    <div class="search-suggestions" id="chat-autocomplete"></div>
+                </div>
+                <button id="chat-send-btn" type="button">Gửi ➤</button>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- DONATE -->
+    <section class="donate-section">
+        <div class="donate-inner"><div class="donate-copy"><span class="donate-kicker">Ủng hộ người nghèo</span><h2>Mong mọi người ủng hộ mình cốc nước mía</h2><p>Phúc xin cảm ơn mọi người đã dùng Web.</p><div class="donate-bank-details"><div><span class="donate-detail-icon">🏦</span><span class="donate-detail-label">MB Bank</span></div><div><span class="donate-detail-icon">💳</span><strong>8366336881711</strong></div><div><span class="donate-detail-icon">👤</span><span><span class="donate-detail-label">Tên TK:</span> Nguyen Hoang Phuc</span></div></div></div><div class="donate-qr-wrap"><img class="donate-qr" src="donate.jpg" alt="Mã QR ủng hộ Phúc" loading="lazy"><span>Quét mã để ủng hộ</span></div></div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+
+        <p>
+            © 2026 Pokédex Database
+        </p>
+
+    </footer>
+
+
+    <script>
+        const headerSearchInput = document.getElementById("header-search-input");
+        const headerSearchButton = document.getElementById("header-search-button");
+
+        function openDatabase(searchValue) {
+            const search = searchValue.trim();
+            const destination = search
+                ? `PokemonDatabase.html?search=${encodeURIComponent(search)}`
+                : "PokemonDatabase.html";
+
+            window.location.href = destination;
+        }
+
+        headerSearchButton.addEventListener("click", () => {
+            openDatabase(headerSearchInput.value);
+        });
+
+        headerSearchInput.addEventListener("keydown", event => {
+            if (event.key === "Enter") openDatabase(headerSearchInput.value);
+        });
+    </script>
+
+    <script src="language.js" defer></script>
+    <script src="typechart-data.js" defer></script>
+    <script src="chatbot.js" defer></script>
+</body>
+
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Meta | PokemonInformation</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+
+        <div class="logo">
+            <span class="pokeball">●</span>
+            PokemonInformation
+            <button class="language-toggle" type="button" data-language-toggle>EN</button>
+        </div>
+
+        <nav>
+            <a href="index.html">Pokédex</a>
+            <a href="PokemonDatabase.html">PokemonDatabase</a>
+            <a href="Types.html">Types</a>
+            <a class="nav-active" href="Meta.html">Meta</a>
+            <a href="Chatbot.html">Chatbot</a>
+            <a href="TeamBuilder.html">Team Builder</a>
+            <a href="DamageCalc.html">Damage Calc</a>
+        </nav>
+
+        <div class="header-search">
+            <span>🔍</span>
+            <input id="header-search-input" type="text" placeholder="Tìm Pokémon..." autocomplete="off">
+            <button id="header-search-button">Tìm</button>
+        </div>
+
+
+    </header>
+
+
+    <!-- HERO -->
+    <section class="hero meta-hero">
+
+        <div class="hero-content">
+
+            <p class="small-title">
+                COMPETITIVE BATTLE DATA
+            </p>
+
+            <h1>
+                META <span>POKÉMON CHAMPIONS</span>
+            </h1>
+
+            <p class="description">
+                Top Pokémon được dùng nhiều nhất, cùng chiêu thức, vật phẩm, đồng đội
+                và bản chất phổ biến nhất — cập nhật trực tiếp từ dữ liệu trận đấu thật.
+            </p>
+
+            <div class="meta-format-toggle" id="meta-format-toggle">
+                <button class="format-toggle-btn active" data-format="Doubles" type="button">Doubles</button>
+                <button class="format-toggle-btn" data-format="Singles" type="button">Singles</button>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- MAIN -->
+    <main class="container">
+
+        <!-- SEARCH ANY POKEMON -->
+        <div class="meta-search-wrap">
+            <div class="meta-search-box">
+                <span>🔍</span>
+                <input
+                    id="meta-search-input"
+                    type="text"
+                    placeholder="Gõ 2-3 chữ (vd: bas, char, gar...) để xem gợi ý"
+                    autocomplete="off"
+                >
+                <button id="meta-search-button" type="button">Tra cứu</button>
+            </div>
+            <div class="search-suggestions" id="meta-search-suggestions"></div>
+        </div>
+
+
+        <div class="section-header">
+            <div>
+                <p class="section-label" id="meta-rank-label">TOP 10 · DOUBLES</p>
+                <h2>Pokémon được dùng nhiều nhất</h2>
+                <p class="meta-rank-note">Danh sách tham khảo — bấm vào 1 Pokémon để xem số liệu chi tiết cập nhật trực tiếp.</p>
+            </div>
+        </div>
+
+        <!-- TYPE FILTER -->
+        <div class="meta-type-filter" id="meta-type-filter"></div>
+
+        <!-- RANK GRID -->
+        <div class="meta-rank-grid" id="meta-rank-grid"></div>
+
+
+        <!-- DETAIL PANEL -->
+        <div class="detail-card meta-detail margin-top" id="meta-detail">
+            <p class="meta-detail-placeholder" id="meta-detail-placeholder">
+                👆 Chọn một Pokémon ở trên, hoặc tra cứu tên bất kỳ ở ô tìm kiếm,
+                để xem chiêu thức / vật phẩm / đồng đội được dùng nhiều nhất — dữ liệu lấy trực tiếp, thời gian thực.
+            </p>
+        </div>
+
+        <p class="meta-attribution">
+            📡 Chiêu thức, vật phẩm, đồng đội, kỹ năng và bản chất/EV bên dưới được lấy từ
+            <a href="https://eurekaffeine.github.io/pokemon-champions-scraper/" target="_blank" rel="noopener">Pokémon Champions Battle Meta API</a>.
+            Nguồn tổng hợp dữ liệu Ranked Battle của Pokémon Champions, gồm usage, chiêu thức, vật phẩm, kỹ năng và đồng đội cho từng Pokémon.
+            Đây là API cộng đồng, không phải API chính thức của Nintendo / The Pokémon Company.
+        </p>
+
+    </main>
+
+
+    <!-- DONATE -->
+    <section class="donate-section">
+        <div class="donate-inner"><div class="donate-copy"><span class="donate-kicker">Ủng hộ người nghèo</span><h2>Mong mọi người ủng hộ mình cốc nước mía</h2><p>Phúc xin cảm ơn mọi người đã dùng Web.</p><div class="donate-bank-details"><div><span class="donate-detail-icon">🏦</span><span class="donate-detail-label">MB Bank</span></div><div><span class="donate-detail-icon">💳</span><strong>8366336881711</strong></div><div><span class="donate-detail-icon">👤</span><span><span class="donate-detail-label">Tên TK:</span> Nguyen Hoang Phuc</span></div></div></div><div class="donate-qr-wrap"><img class="donate-qr" src="donate.jpg" alt="Mã QR ủng hộ Phúc" loading="lazy"><span>Quét mã để ủng hộ</span></div></div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+
+        <p>
+            © 2026 Pokédex Database
+        </p>
+
+    </footer>
+
+
+    <script>
+        const headerSearchInput = document.getElementById("header-search-input");
+        const headerSearchButton = document.getElementById("header-search-button");
+
+        function openDatabase(searchValue) {
+            const search = searchValue.trim();
+            const destination = search
+                ? `PokemonDatabase.html?search=${encodeURIComponent(search)}`
+                : "PokemonDatabase.html";
+
+            window.location.href = destination;
+        }
+
+        headerSearchButton.addEventListener("click", () => {
+            openDatabase(headerSearchInput.value);
+        });
+
+        headerSearchInput.addEventListener("keydown", event => {
+            if (event.key === "Enter") openDatabase(headerSearchInput.value);
+        });
+    </script>
+
+    <script src="language.js"></script>
+    <script src="meta.js"></script>
+</body>
+
+</html>
