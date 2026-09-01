@@ -24,13 +24,14 @@
         </div>
 
         <nav>
-            <a href="index.html">Pokédex</a>
+            <a href="index.html">📚 Pokédex</a>
             <a href="PokemonDatabase.html">PokemonDatabase</a>
             <a href="Types.html">Types</a>
             <a href="Meta.html">Meta</a>
             <a href="Chatbot.html">Chatbot</a>
             <a class="nav-active" href="TeamBuilder.html">Team Builder</a>
-            <a href="DamageCalc.html">Damage Calc</a>
+            <a href="TrainerCard.html">Trainer Card</a>
+            <a href="DamageCalc.html">Calculate</a>
         </nav>
 
         <div class="header-search">
@@ -54,12 +55,12 @@
             </p>
 
             <h1>
-                XÂY DỰNG <span>ĐỘI HÌNH</span>
+                BUILD <span>YOUR TEAM</span>
             </h1>
 
             <p class="description">
-                Thêm tối đa 6 Pokémon vào đội, hệ thống sẽ tự phân tích điểm yếu,
-                khả năng phòng thủ và gợi ý hệ còn thiếu.
+                Add up to 6 Pokémon to your team; the system will automatically analyze weaknesses,
+                defensive coverage, and suggest any missing type matchups.
             </p>
 
         </div>
@@ -77,7 +78,7 @@
                 <input
                     id="tb-search-input"
                     type="text"
-                    placeholder="Gõ tên Pokémon để thêm vào đội (vd: gar, char...)"
+                    placeholder="Type a Pokémon name to add to the team (e.g. gar, char...)"
                     autocomplete="off"
                 >
             </div>
@@ -91,7 +92,7 @@
                 <p class="section-label">ĐỘI HÌNH CỦA BẠN</p>
                 <h2 id="tb-team-count">0 / 6 Pokémon</h2>
             </div>
-            <button class="filter-btn" id="tb-clear-btn" type="button">🗑 Xoá đội</button>
+            <button class="filter-btn" id="tb-clear-btn" type="button">🗑 Clear team</button>
         </div>
 
         <div class="tb-team-grid" id="tb-team-grid"></div>
@@ -100,7 +101,7 @@
         <!-- ANALYSIS -->
         <div class="detail-card tb-analysis margin-top" id="tb-analysis">
             <p class="meta-detail-placeholder">
-                👆 Thêm ít nhất 1 Pokémon để bắt đầu phân tích đội hình.
+                👆 Add at least 1 Pokémon to start analyzing the team.
             </p>
         </div>
 

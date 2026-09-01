@@ -17,6 +17,7 @@ const pokeApiCache = new Map();
 
 let pokemonNameList = null;
 let pokemonNameListPromise = null;
+let pokemonNameSet = null; // Set các tên hợp lệ, dùng để tra cứu local (O(1)), không tốn API
 
 function loadPokemonNameList() {
     if (pokemonNameListPromise) return pokemonNameListPromise;
@@ -28,14 +29,23 @@ function loadPokemonNameList() {
                 name: p.name,
                 id: p.url.split("/").filter(Boolean).pop()
             }));
+            pokemonNameSet = new Set(pokemonNameList.map(p => p.name));
             return pokemonNameList;
         })
         .catch(() => {
             pokemonNameList = [];
+            pokemonNameSet = new Set();
             return pokemonNameList;
         });
 
     return pokemonNameListPromise;
+}
+
+// Đảm bảo danh sách tên đã tải xong trước khi validate — chỉ tải 1 lần,
+// các lần gọi sau dùng lại cache trong bộ nhớ (không gọi lại API).
+function ensurePokemonNameList() {
+    if (pokemonNameList) return Promise.resolve(pokemonNameList);
+    return loadPokemonNameList();
 }
 
 function searchPokemonNames(prefixRaw, limit = 6) {
@@ -371,14 +381,6 @@ async function tryFetchPokemon(candidate) {
     }
 }
 
-// Một số loài chỉ tồn tại dưới dạng form theo giới tính trên PokeAPI
-// (vd: không có "basculegion" trơn, chỉ có "basculegion-male"/"basculegion-female")
-async function tryFetchPokemonSmart(candidate) {
-    const data = await tryFetchPokemon(candidate);
-    if (data) return data;
-    return await tryFetchPokemon(`${candidate}-male`);
-}
-
 // Chuyển tên dạng PokeAPI sang Showdown ID chuẩn mà championsbattledata.com dùng
 // (vd: "basculegion-male" -> "basculegion", "raichu-alola" -> "raichualola")
 function toShowdownId(pokeApiName) {
@@ -388,6 +390,73 @@ function toShowdownId(pokeApiName) {
     return id.replace(/-/g, "");
 }
 
+
+// ========================================
+// SO KHỚP GẦN ĐÚNG (cho phép gõ sai/thiếu 1-2 ký tự)
+// Levenshtein distance — chạy hoàn toàn local, không tốn API
+// ========================================
+
+function levenshteinDistance(a, b) {
+    const m = a.length, n = b.length;
+    if (m === 0) return n;
+    if (n === 0) return m;
+
+    const dp = new Array(n + 1);
+    for (let j = 0; j <= n; j++) dp[j] = j;
+
+    for (let i = 1; i <= m; i++) {
+        let prevDiag = dp[0];
+        dp[0] = i;
+        for (let j = 1; j <= n; j++) {
+            const temp = dp[j];
+            dp[j] = a[i - 1] === b[j - 1]
+                ? prevDiag
+                : 1 + Math.min(prevDiag, dp[j], dp[j - 1]);
+            prevDiag = temp;
+        }
+    }
+
+    return dp[n];
+}
+
+// Tìm tên Pokémon gần đúng nhất trong danh sách đã tải sẵn.
+// Ngưỡng sai lệch cho phép tăng theo độ dài từ (từ càng dài, cho phép sai càng nhiều ký tự).
+function findClosestPokemonName(candidate) {
+    if (!pokemonNameList || pokemonNameList.length === 0 || candidate.length < 4) return null;
+
+    const maxDist = candidate.length <= 6 ? 1 : 2;
+    let best = null;
+    let bestDist = Infinity;
+
+    for (const p of pokemonNameList) {
+        // Lọc nhanh theo chênh lệch độ dài để tránh so sánh những tên rõ ràng quá khác biệt
+        if (Math.abs(p.name.length - candidate.length) > maxDist) continue;
+
+        const dist = levenshteinDistance(candidate, p.name);
+        if (dist < bestDist) {
+            bestDist = dist;
+            best = p.name;
+            if (dist === 0) break;
+        }
+    }
+
+    return bestDist <= maxDist ? best : null;
+}
+
+
+// ========================================
+// NHẬN DIỆN TÊN POKÉMON TRONG CÂU HỎI
+//
+// Trước đây: gửi thẳng từng từ/cặp từ trong câu lên PokeAPI để "dò",
+// có thể tốn tới 6-8 request cho 1 câu hỏi (vd "hướng dẫn tôi build Garchomp").
+//
+// Giờ: danh sách toàn bộ tên Pokémon đã được tải sẵn 1 lần khi mở trang
+// (loadPokemonNameList). Ta validate từng từ ứng viên với danh sách này
+// HOÀN TOÀN Ở LOCAL (không tốn mạng) — chỉ khi đã xác định được đúng 1 tên
+// hợp lệ (khớp chính xác, hoặc khớp gần đúng nếu người dùng gõ sai),
+// mới gọi PokeAPI DUY NHẤT 1 LẦN để lấy dữ liệu chi tiết.
+// ========================================
+
 async function detectPokemon(norm) {
     const tokens = norm
         .replace(/[^a-z0-9\s-]/g, " ")
@@ -396,20 +465,42 @@ async function detectPokemon(norm) {
 
     if (tokens.length === 0) return null;
 
-    // Thử ghép 2 từ liên tiếp trước (vd: "mr mime" -> "mr-mime")
+    await ensurePokemonNameList();
+    if (!pokemonNameSet || pokemonNameSet.size === 0) return null;
+
+    // Ứng viên: ưu tiên cặp 2 từ liên tiếp (vd: "mr mime" -> "mr-mime"),
+    // sau đó từng từ đơn (tối đa 6 từ để giới hạn phạm vi xử lý).
+    const candidates = [];
     for (let i = 0; i < tokens.length - 1; i++) {
-        const bigram = `${tokens[i]}-${tokens[i + 1]}`;
-        const data = await tryFetchPokemon(bigram);
-        if (data) return data;
+        candidates.push(`${tokens[i]}-${tokens[i + 1]}`);
+    }
+    candidates.push(...tokens.slice(0, 6));
+
+    // 1. Khớp CHÍNH XÁC với danh sách tên đã tải sẵn — không gọi API
+    let matchedName = candidates.find(c => pokemonNameSet.has(c));
+
+    // 2. Một số loài chỉ tồn tại dưới dạng form theo giới tính trên PokeAPI
+    //    (vd: không có "basculegion" trơn, chỉ có "basculegion-male") — vẫn tra local
+    if (!matchedName) {
+        for (const c of candidates) {
+            if (pokemonNameSet.has(`${c}-male`)) { matchedName = `${c}-male`; break; }
+            if (pokemonNameSet.has(`${c}-female`)) { matchedName = `${c}-female`; break; }
+        }
     }
 
-    // Sau đó thử từng từ đơn (tối đa 6 từ để tránh gọi quá nhiều API)
-    for (const token of tokens.slice(0, 6)) {
-        const data = await tryFetchPokemonSmart(token);
-        if (data) return data;
+    // 3. Không khớp chính xác -> thử tìm tên gần đúng nhất (cho phép gõ sai chính tả),
+    //    vẫn hoàn toàn local, không tốn API cho tới khi tìm ra ứng viên hợp lệ.
+    if (!matchedName) {
+        for (const c of candidates) {
+            const closest = findClosestPokemonName(c);
+            if (closest) { matchedName = closest; break; }
+        }
     }
 
-    return null;
+    if (!matchedName) return null;
+
+    // 4. Chỉ gọi PokeAPI DUY NHẤT 1 LẦN, cho tên đã được xác nhận hợp lệ
+    return await tryFetchPokemon(matchedName);
 }
 
 
@@ -644,7 +735,7 @@ function statLabelVi(statName) {
 // ========================================
 
 addMessage(`
-    Chào bạn! 👋 Mình là trợ lý Pokémon.<br>
+    Chào bạn! 👋<br>
     Hỏi mình về <strong>build/item/đồng đội</strong> của 1 Pokémon, hoặc <strong>tương khắc hệ</strong> nhé!
 `);
 renderSuggestions(["Basculegion build?", "Hệ rồng khắc gì?", "Garchomp"]);

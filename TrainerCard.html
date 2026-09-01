@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Trainer Card | PokemonInformation</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8930087233517097"
+     crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* ===== TRAINER CARD PAGE — style riêng, không đụng style.css chung ===== */
+
+        .tc-hero { min-height: 260px; }
+
+        .tc-layout {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 26px;
+            align-items: start;
+            margin-top: 10px;
+        }
+
+        .tc-panel {
+            background: #151821;
+            border: 1px solid #272b36;
+            border-radius: 16px;
+            padding: 22px;
+        }
+
+        .tc-step-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #f3a5a5;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .tc-step-label:not(:first-child) { margin-top: 22px; }
+
+        .tc-step-label span {
+            display: inline-grid;
+            place-items: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ef4444;
+            color: white;
+            font-size: 11px;
+        }
+
+        .tc-subnote {
+            font-size: 11px;
+            color: #6b7280;
+            margin: -4px 0 10px;
+            line-height: 1.5;
+        }
+
+        .tc-mode-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tc-mode-btn {
+            flex: 1;
+            padding: 9px 6px;
+            border-radius: 9px;
+            border: 1px solid #303541;
+            background: #191d27;
+            color: #a9afbd;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .tc-mode-btn.active {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.14);
+            color: white;
+        }
+
+        .tc-file-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px dashed #3c4656;
+            border-radius: 10px;
+            background: #191d27;
+            color: #a9afbd;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .tc-file-btn:hover { border-color: #ef4444; color: white; }
+        .tc-file-btn input { display: none; }
+
+        .tc-photo-adjust { margin-top: 14px; }
+
+        .tc-crop-box {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 0 auto;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid #ef4444;
+            background: #191d27;
+            cursor: grab;
+            touch-action: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,.4);
+        }
+
+        .tc-crop-box:active { cursor: grabbing; }
+
+        .tc-crop-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            user-select: none;
+            pointer-events: none;
+            max-width: none;
+        }
+
+        .tc-crop-guide {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            box-shadow: inset 0 0 0 2px rgba(255,255,255,0.25);
+            pointer-events: none;
+        }
+
+        .tc-zoom-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .tc-zoom-row span { font-size: 13px; color: #a9afbd; }
+        .tc-zoom-row input[type="range"] { flex: 1; accent-color: #ef4444; }
+
+        .tc-adjust-hint {
+            margin-top: 10px;
+            font-size: 11px;
+            color: #6b7280;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .tc-clear-photo {
+            display: block;
+            margin: 10px auto 0;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .tc-search-wrap { position: relative; }
+
+        .tc-search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #191d27;
+            border: 1px solid #303541;
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+
+        .tc-search-box:focus-within { border-color: #ef4444; }
+
+        .tc-search-box input {
+            flex: 1;
+            min-width: 0;
+            border: 0;
+            outline: 0;
+            background: transparent;
+            color: white;
+            font-size: 13px;
+        }
+
+        .tc-suggestions {
+            position: absolute;
+            z-index: 20;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            max-height: 260px;
+            overflow-y: auto;
+            background: #1b1f2a;
+            border: 1px solid #303541;
+            border-radius: 10px;
+            display: none;
+            box-shadow: 0 14px 30px rgba(0,0,0,.4);
+        }
+
+        .tc-suggestions.active { display: block; }
+
+        .tc-suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            cursor: pointer;
+        }
+
+        .tc-suggestion-item:hover { background: #242a38; }
+        .tc-suggestion-item img { width: 34px; height: 34px; object-fit: contain; }
+        .tc-suggestion-item span { font-size: 13px; font-weight: 700; }
+
+        .tc-random-btn {
+            margin-top: 8px;
+            width: 100%;
+            padding: 9px;
+            border: 1px solid #303541;
+            border-radius: 9px;
+            background: transparent;
+            color: #a9afbd;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .tc-random-btn:hover { border-color: #ef4444; color: white; }
+
+        /* --- preview 1 pokemon đã chọn (hero / avatar sprite) --- */
+        .tc-single-preview {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            padding: 8px 10px;
+            border-radius: 12px;
+            background: #191d27;
+            border: 1px solid #303541;
+        }
+
+        .tc-single-preview.active { display: flex; }
+        .tc-single-preview img { width: 40px; height: 40px; object-fit: contain; }
+        .tc-single-preview .tc-sp-name { flex: 1; font-size: 13px; font-weight: 700; }
+
+        .tc-shiny-btn {
+            display: grid;
+            place-items: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: #4b5563;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .tc-shiny-btn.active { color: #facc15; }
+        .tc-shiny-btn:disabled { opacity: .3; cursor: not-allowed; }
+
+        .tc-sp-remove {
+            display: grid;
+            place-items: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(239, 68, 68, 0.25);
+            color: #fca5a5;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .tc-sp-remove:hover { background: #ef4444; color: white; }
+
+        .tc-search-box .tc-count {
+            font-size: 11px;
+            color: #6b7280;
+            white-space: nowrap;
+        }
+
+        .tc-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+            min-height: 20px;
+        }
+
+        .tc-chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 6px 5px 10px;
+            border-radius: 20px;
+            background: #222734;
+            border: 1px solid #303541;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .tc-chip img { width: 22px; height: 22px; object-fit: contain; }
+
+        .tc-chip-remove {
+            display: grid;
+            place-items: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(239, 68, 68, 0.25);
+            color: #fca5a5;
+            cursor: pointer;
+            font-size: 11px;
+            line-height: 1;
+        }
+
+        .tc-chip-remove:hover { background: #ef4444; color: white; }
+
+        /* --- khung avatar (frame) selector --- */
+        .tc-frame-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .tc-frame-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 4px;
+            border-radius: 12px;
+            border: 1px solid #303541;
+            background: #191d27;
+            color: #a9afbd;
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .tc-frame-btn.active { border-color: #ef4444; background: rgba(239,68,68,.12); color: white; }
+        .tc-frame-swatch { width: 34px; height: 34px; border-radius: 50%; }
+        .tc-frame-swatch.pokeball { background: linear-gradient(180deg, #ef4444 50%, #f8fafc 50%); border: 2px solid #11151d; }
+        .tc-frame-swatch.neon { background: #0d1522; border: 2px solid #22d3ee; box-shadow: 0 0 10px #22d3ee, inset 0 0 6px #e879f9; }
+        .tc-frame-swatch.metal-gold { background: #191d27; border: 3px solid #d4af37; }
+        .tc-frame-swatch.metal-silver { background: #191d27; border: 3px solid #c0c9d6; }
+        .tc-frame-swatch.fireice { background: linear-gradient(90deg, #f97316, #22d3ee); }
+        .tc-frame-swatch.carbon { background: repeating-linear-gradient(45deg, #0a0c10, #0a0c10 4px, #1c2028 4px, #1c2028 8px); border: 2px solid #3c4656; }
+        .tc-frame-swatch.holo { background: linear-gradient(135deg, #f97316, #facc15, #4ade80, #22d3ee, #a855f7, #f97316); }
+        .tc-frame-swatch.electric { background: #0d1522; border: 2px solid #facc15; box-shadow: 0 0 10px #facc15; }
+        .tc-frame-swatch.nature { background: linear-gradient(135deg, #86efac, #15803d); }
+        .tc-frame-swatch.aqua { background: linear-gradient(180deg, #7dd3fc, #0369a1); }
+        .tc-frame-swatch.psychic { background: linear-gradient(135deg, #f0abfc, #9333ea); box-shadow: 0 0 10px #e879f9; }
+        .tc-frame-swatch.dragon { background: linear-gradient(135deg, #818cf8, #3730a3); }
+        .tc-frame-swatch.galaxy { background: radial-gradient(circle at 30% 30%, #ec4899, #6366f1 60%, #1e1b4b); }
+        .tc-frame-swatch.royal { background: linear-gradient(135deg, #facc15, #7e22ce, #facc15); }
+
+        /* --- bậc rank Pokémon Champions --- */
+        select.tc-field {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23a9afbd'><path d='M5 7l5 5 5-5z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 36px;
+        }
+
+        /* --- tag / danh hiệu --- */
+        .tc-field {
+            width: 100%;
+            padding: 11px 13px;
+            border-radius: 9px;
+            background: #191d27;
+            border: 1px solid #303541;
+            color: white;
+            font-size: 13px;
+            outline: none;
+            margin-bottom: 10px;
+        }
+
+        .tc-field:focus { border-color: #ef4444; }
+
+        .tc-tag-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .tc-tag-chip {
+            padding: 6px 11px;
+            border-radius: 20px;
+            border: 1px solid #303541;
+            background: #191d27;
+            color: #8a90a0;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .tc-tag-chip:hover, .tc-tag-chip.active {
+            border-color: #ef4444;
+            color: white;
+            background: rgba(239,68,68,.14);
+        }
+
+        .tc-theme-row { display: flex; gap: 8px; }
+
+        .tc-theme-btn {
+            flex: 1;
+            padding: 9px 0;
+            border-radius: 9px;
+            border: 1px solid #303541;
+            background: #191d27;
+            color: #a9afbd;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .tc-theme-btn.active { border-color: #ef4444; background: rgba(239, 68, 68, 0.14); color: white; }
+
+        .tc-generate-btn {
+            width: 100%;
+            margin-top: 20px;
+            padding: 14px 0;
+            border: none;
+            border-radius: 10px;
+            background: #ef4444;
+            color: white;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .tc-generate-btn:hover { background: #dc2626; }
+
+        .tc-download-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 13px 0;
+            border-radius: 10px;
+            border: 1px solid #22c55e;
+            background: rgba(34, 197, 94, 0.12);
+            color: #86efac;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .tc-download-btn.ready { display: block; }
+        .tc-download-btn:hover { background: #22c55e; color: #08160c; }
+
+        /* PREVIEW SIDE */
+        .tc-preview-wrap { display: flex; flex-direction: column; align-items: center; position: relative; }
+
+        .tc-canvas-frame {
+            position: relative;
+            width: min(100%, 400px);
+            aspect-ratio: 9 / 16;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0,0,0,.5);
+            border: 1px solid #272b36;
+        }
+
+        #tc-canvas { width: 100%; height: 100%; display: block; }
+
+        .tc-safe-zone { position: absolute; left: 0; right: 0; pointer-events: none; }
+        .tc-safe-zone.top { top: 0; height: 13%; background: linear-gradient(rgba(0,0,0,.55), transparent); }
+        .tc-safe-zone.bottom { bottom: 0; height: 13%; background: linear-gradient(transparent, rgba(0,0,0,.55)); }
+
+        .tc-preview-note {
+            margin-top: 14px;
+            max-width: 330px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        /* === RESPONSIVE PREVIEW EXPANSION === */
+        .tc-layout.preview-expanded {
+            grid-template-columns: 1fr;
+        }
+
+        .tc-layout.preview-expanded .tc-panel {
+            display: none;
+        }
+
+        .tc-layout.preview-expanded .tc-preview-wrap {
+            width: 100%;
+        }
+
+        .tc-layout.preview-expanded .tc-canvas-frame {
+            width: 100%;
+            max-width: 1000px;
+            aspect-ratio: 16 / 9;
+            margin: 0 auto;
+        }
+
+        .tc-preview-close-btn {
+            display: none;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .tc-preview-close-btn:hover {
+            background: rgba(0,0,0,0.8);
+        }
+
+        /* Close button chỉ hiển thị trên mobile khi preview expand */
+        @media (max-width: 768px) {
+            .tc-layout.preview-expanded .tc-preview-close-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        /* === TABLET: 768px và dưới === */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 16px;
+            }
+
+            .tc-layout {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .tc-panel {
+                padding: 18px;
+            }
+
+            .tc-step-label {
+                font-size: 10px;
+                margin-bottom: 8px;
+                gap: 6px;
+            }
+
+            .tc-step-label:not(:first-child) {
+                margin-top: 18px;
+            }
+
+            .tc-step-label span {
+                width: 18px;
+                height: 18px;
+                font-size: 10px;
+            }
+
+            .tc-subnote {
+                font-size: 10px;
+                margin: -2px 0 8px;
+            }
+
+            .tc-field {
+                font-size: 12px;
+                padding: 10px 12px;
+                margin-bottom: 8px;
+            }
+
+            .tc-file-btn {
+                font-size: 12px;
+                padding: 10px 12px;
+            }
+
+            .tc-search-box {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .tc-frame-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 6px;
+            }
+
+            .tc-frame-btn {
+                font-size: 9px;
+                padding: 8px 3px;
+                gap: 4px;
+            }
+
+            .tc-frame-swatch {
+                width: 28px;
+                height: 28px;
+            }
+
+            .tc-canvas-frame {
+                width: 100%;
+                max-width: 500px;
+                aspect-ratio: 9 / 16;
+            }
+
+            .tc-preview-note {
+                max-width: 500px;
+                font-size: 11px;
+            }
+
+            .tc-generate-btn,
+            .tc-download-btn {
+                font-size: 13px;
+                padding: 12px 0;
+                margin-top: 16px;
+            }
+
+            .tc-mode-btn,
+            .tc-theme-btn {
+                font-size: 11px;
+                padding: 8px 4px;
+            }
+        }
+
+        /* === MOBILE: 640px và dưới === */
+        @media (max-width: 640px) {
+            .tc-hero {
+                min-height: 200px;
+            }
+
+            .container {
+                padding: 16px 12px;
+            }
+
+            .tc-layout {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .tc-panel {
+                padding: 16px;
+            }
+
+            .tc-step-label {
+                font-size: 9px;
+                margin-bottom: 6px;
+                gap: 4px;
+            }
+
+            .tc-step-label:not(:first-child) {
+                margin-top: 14px;
+            }
+
+            .tc-step-label span {
+                width: 16px;
+                height: 16px;
+                font-size: 9px;
+            }
+
+            .tc-subnote {
+                font-size: 9px;
+                margin: -1px 0 6px;
+            }
+
+            .tc-field {
+                font-size: 11px;
+                padding: 9px 10px;
+                margin-bottom: 6px;
+            }
+
+            .tc-file-btn {
+                font-size: 11px;
+                padding: 9px 10px;
+                gap: 8px;
+            }
+
+            .tc-mode-btn,
+            .tc-theme-btn {
+                font-size: 10px;
+                padding: 7px 3px;
+            }
+
+            .tc-search-box {
+                font-size: 11px;
+                padding: 7px 8px;
+                gap: 6px;
+            }
+
+            .tc-search-box input {
+                font-size: 11px;
+            }
+
+            .tc-random-btn {
+                font-size: 11px;
+                padding: 8px;
+                margin-top: 6px;
+            }
+
+            .tc-frame-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 5px;
+            }
+
+            .tc-frame-btn {
+                font-size: 8px;
+                padding: 6px 2px;
+                gap: 3px;
+            }
+
+            .tc-frame-swatch {
+                width: 24px;
+                height: 24px;
+            }
+
+            .tc-crop-box {
+                width: 140px;
+                height: 140px;
+            }
+
+            .tc-zoom-row {
+                gap: 8px;
+                margin-top: 10px;
+            }
+
+            .tc-zoom-row span {
+                font-size: 11px;
+            }
+
+            .tc-canvas-frame {
+                width: 100%;
+                max-width: 100%;
+                aspect-ratio: 9 / 16;
+            }
+
+            .tc-preview-note {
+                max-width: 100%;
+                font-size: 10px;
+                margin-top: 10px;
+                padding: 0 8px;
+            }
+
+            .tc-generate-btn,
+            .tc-download-btn {
+                font-size: 12px;
+                padding: 11px 0;
+                margin-top: 14px;
+            }
+
+            .tc-chips,
+            .tc-tag-chips {
+                gap: 5px;
+                margin-top: 8px;
+            }
+
+            .tc-chip,
+            .tc-tag-chip {
+                font-size: 10px;
+                padding: 4px 5px 4px 8px;
+            }
+
+            .tc-chip img {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        /* === SMALL MOBILE: 480px và dưới === */
+        @media (max-width: 480px) {
+            .tc-layout {
+                gap: 12px;
+            }
+
+            .tc-panel {
+                padding: 12px;
+            }
+
+            .tc-step-label {
+                font-size: 8px;
+                margin-bottom: 4px;
+            }
+
+            .tc-step-label:not(:first-child) {
+                margin-top: 10px;
+            }
+
+            .tc-frame-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 4px;
+            }
+
+            .tc-field {
+                font-size: 10px;
+                padding: 8px 8px;
+                margin-bottom: 4px;
+            }
+
+            .tc-generate-btn,
+            .tc-download-btn {
+                font-size: 11px;
+                padding: 10px 0;
+                margin-top: 10px;
+            }
+        }
+
+        @media (max-width: 850px) {
+            .tc-layout { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="logo">
+            <span class="pokeball">●</span>
+            PokemonInformation
+            <button class="language-toggle" type="button" data-language-toggle>EN</button>
+        </div>
+
+        <nav>
+            <a href="index.html">Pokédex</a>
+            <a href="PokemonDatabase.html">PokemonDatabase</a>
+            <a href="Types.html">Types</a>
+            <a href="Meta.html">Meta</a>
+            <a href="Chatbot.html">Chatbot</a>
+            <a href="TeamBuilder.html">Team Builder</a>
+            <a href="DamageCalc.html">Calculate</a>
+            <a class="nav-active" href="TrainerCard.html">🪪 Trainer Card</a>
+        </nav>
+
+        <div class="header-search">
+            <span>🔍</span>
+            <input id="header-search-input" type="text" placeholder="Tìm Pokémon..." autocomplete="off">
+            <button id="header-search-button">Tìm</button>
+        </div>
+    </header>
+
+
+    <!-- HERO -->
+    <section class="hero tc-hero">
+        <div class="hero-content">
+            <p class="small-title">HỒ SƠ HUẤN LUYỆN VIÊN</p>
+            <h1>TẠO <span>TRAINER CARD</span></h1>
+            <p class="description">
+                Thẻ hồ sơ kiểu game — avatar khung trang trí, danh hiệu riêng, và 1 Pokémon đồng hành
+                làm ảnh nền lớn. Tải về đăng thẳng lên Story Facebook / Instagram (1080×1920).
+            </p>
+        </div>
+    </section>
+
+
+    <!-- MAIN -->
+    <main class="container">
+
+        <div class="tc-layout">
+
+            <!-- CONTROLS -->
+            <div class="tc-panel">
+
+                <div class="tc-step-label"><span>0</span> Định dạng ảnh</div>
+                <div class="tc-mode-row" id="tc-format-row">
+                    <button class="tc-mode-btn active" data-format="portrait" type="button">📱 Story dọc (9:16)</button>
+                    <button class="tc-mode-btn" data-format="landscape" type="button">🖥 Trainer Card ngang (16:9)</button>
+                </div>
+
+                <div class="tc-step-label"><span>1</span> Ảnh đại diện</div>
+                <div class="tc-mode-row" id="tc-avatar-mode-row">
+                    <button class="tc-mode-btn active" data-mode="photo" type="button">📷 Ảnh thật</button>
+                    <button class="tc-mode-btn" data-mode="sprite" type="button">🎮 Sprite Pokémon</button>
+                </div>
+
+                <!-- Chế độ ảnh thật -->
+                <div id="tc-photo-mode-block">
+                    <label class="tc-file-btn">
+                        📷 Chọn ảnh chân dung
+                        <input type="file" id="tc-photo-input" accept="image/*">
+                    </label>
+
+                    <div class="tc-photo-adjust" id="tc-photo-adjust" style="display:none;">
+                        <div class="tc-crop-box" id="tc-crop-box">
+                            <img class="tc-crop-img" id="tc-crop-img" alt="Ảnh đã chọn" draggable="false">
+                            <div class="tc-crop-guide"></div>
+                        </div>
+                        <div class="tc-zoom-row">
+                            <span>🔍−</span>
+                            <input type="range" id="tc-zoom-slider" min="100" max="260" value="100">
+                            <span>🔍+</span>
+                        </div>
+                        <button class="tc-clear-photo" id="tc-photo-clear" type="button">Xoá ảnh</button>
+                    </div>
+                </div>
+
+                <!-- Chế độ sprite -->
+                <div id="tc-sprite-mode-block" style="display:none;">
+                    <div class="tc-search-wrap">
+                        <div class="tc-search-box">
+                            <span>🔍</span>
+                            <input id="tc-avatar-sprite-input" type="text" placeholder="Gõ tên Pokémon làm avatar..." autocomplete="off">
+                        </div>
+                        <div class="tc-suggestions" id="tc-avatar-sprite-suggestions"></div>
+                    </div>
+                    <div class="tc-single-preview" id="tc-avatar-sprite-preview">
+                        <img id="tc-avatar-sprite-img" alt="">
+                        <span class="tc-sp-name" id="tc-avatar-sprite-name"></span>
+                        <button class="tc-sp-remove" id="tc-avatar-sprite-remove" type="button">✕</button>
+                    </div>
+                </div>
+
+                <div class="tc-step-label"><span>2</span> Pokémon đồng hành (ảnh nền)</div>
+                <div class="tc-search-wrap">
+                    <div class="tc-search-box">
+                        <span>🔍</span>
+                        <input id="tc-hero-input" type="text" placeholder="Gõ tên Pokémon (vd: garchomp)..." autocomplete="off">
+                    </div>
+                    <div class="tc-suggestions" id="tc-hero-suggestions"></div>
+                </div>
+                <button class="tc-random-btn" id="tc-hero-random-btn" type="button">🎲 Ngẫu nhiên 1 Pokémon</button>
+                <div class="tc-single-preview" id="tc-hero-preview">
+                    <img id="tc-hero-img" alt="">
+                    <span class="tc-sp-name" id="tc-hero-name"></span>
+                    <button class="tc-shiny-btn" id="tc-hero-shiny-btn" type="button" title="Bật/tắt Shiny">✨</button>
+                    <button class="tc-sp-remove" id="tc-hero-remove" type="button">✕</button>
+                </div>
+
+                <div class="tc-step-label"><span>3</span> Đội hình phụ (tối đa 5)</div>
+                <div class="tc-search-wrap">
+                    <div class="tc-search-box">
+                        <span>🔍</span>
+                        <input id="tc-team-input" type="text" placeholder="Gõ tên Pokémon..." autocomplete="off">
+                        <span class="tc-count" id="tc-team-count">0/5</span>
+                    </div>
+                    <div class="tc-suggestions" id="tc-team-suggestions"></div>
+                </div>
+                <div class="tc-chips" id="tc-team-chips"></div>
+
+                <div class="tc-step-label"><span>4</span> Khung Avatar</div>
+                <div class="tc-frame-grid" id="tc-frame-grid">
+                    <button class="tc-frame-btn active" data-frame="pokeball" type="button">
+                        <span class="tc-frame-swatch pokeball"></span> Pokéball
+                    </button>
+                    <button class="tc-frame-btn" data-frame="neon" type="button">
+                        <span class="tc-frame-swatch neon"></span> Neon Cyber
+                    </button>
+                    <button class="tc-frame-btn" data-frame="metal-gold" type="button">
+                        <span class="tc-frame-swatch metal-gold"></span> Kim loại Vàng
+                    </button>
+                    <button class="tc-frame-btn" data-frame="metal-silver" type="button">
+                        <span class="tc-frame-swatch metal-silver"></span> Kim loại Bạc
+                    </button>
+                    <button class="tc-frame-btn" data-frame="fireice" type="button">
+                        <span class="tc-frame-swatch fireice"></span> Lửa/Băng
+                    </button>
+                    <button class="tc-frame-btn" data-frame="carbon" type="button">
+                        <span class="tc-frame-swatch carbon"></span> Carbon Đen
+                    </button>
+                    <button class="tc-frame-btn" data-frame="holo" type="button">
+                        <span class="tc-frame-swatch holo"></span> Holographic
+                    </button>
+                    <button class="tc-frame-btn" data-frame="electric" type="button">
+                        <span class="tc-frame-swatch electric"></span> Điện Vàng
+                    </button>
+                    <button class="tc-frame-btn" data-frame="nature" type="button">
+                        <span class="tc-frame-swatch nature"></span> Thiên Nhiên
+                    </button>
+                    <button class="tc-frame-btn" data-frame="aqua" type="button">
+                        <span class="tc-frame-swatch aqua"></span> Đại Dương
+                    </button>
+                    <button class="tc-frame-btn" data-frame="psychic" type="button">
+                        <span class="tc-frame-swatch psychic"></span> Siêu Năng
+                    </button>
+                    <button class="tc-frame-btn" data-frame="dragon" type="button">
+                        <span class="tc-frame-swatch dragon"></span> Rồng
+                    </button>
+                    <button class="tc-frame-btn" data-frame="galaxy" type="button">
+                        <span class="tc-frame-swatch galaxy"></span> Ngân Hà
+                    </button>
+                    <button class="tc-frame-btn" data-frame="royal" type="button">
+                        <span class="tc-frame-swatch royal"></span> Hoàng Gia
+                    </button>
+                </div>
+
+                <div class="tc-step-label"><span>5</span> Bậc Rank (Pokémon Champions)</div>
+                <select class="tc-field" id="tc-rank-select">
+                    <option value="none:">— Không hiển thị rank —</option>
+                    <option value="beginner:">Beginner</option>
+                    <optgroup label="Poké Ball">
+                        <option value="pokeball:4">Poké Ball IV</option>
+                        <option value="pokeball:3">Poké Ball III</option>
+                        <option value="pokeball:2">Poké Ball II</option>
+                        <option value="pokeball:1">Poké Ball I</option>
+                    </optgroup>
+                    <optgroup label="Great Ball">
+                        <option value="greatball:4">Great Ball IV</option>
+                        <option value="greatball:3">Great Ball III</option>
+                        <option value="greatball:2">Great Ball II</option>
+                        <option value="greatball:1">Great Ball I</option>
+                    </optgroup>
+                    <optgroup label="Ultra Ball">
+                        <option value="ultraball:4">Ultra Ball IV</option>
+                        <option value="ultraball:3">Ultra Ball III</option>
+                        <option value="ultraball:2">Ultra Ball II</option>
+                        <option value="ultraball:1">Ultra Ball I</option>
+                    </optgroup>
+                    <optgroup label="Master Ball">
+                        <option value="masterball:4">Master Ball IV</option>
+                        <option value="masterball:3">Master Ball III</option>
+                        <option value="masterball:2">Master Ball II</option>
+                        <option value="masterball:1">Master Ball I</option>
+                    </optgroup>
+                    <option value="champion:">Champion</option>
+                </select>
+
+                <div class="tc-step-label"><span>6</span> Tên & Danh hiệu</div>
+                <input class="tc-field" id="tc-name-input" type="text" placeholder="Tên Trainer (vd: Phúc)" maxlength="24">
+                <input class="tc-field" id="tc-tag-input" type="text" placeholder="Danh hiệu (vd: VGC Player)" maxlength="28">
+                <div class="tc-tag-chips" id="tc-tag-chips"></div>
+
+                <div class="tc-step-label"><span>7</span> Tông màu điểm nhấn</div>
+                <div class="tc-theme-row" id="tc-theme-row">
+                    <button class="tc-theme-btn active" data-theme="auto" type="button">Theo hệ Pokémon</button>
+                    <button class="tc-theme-btn" data-theme="fixed" type="button">Đỏ cổ điển</button>
+                </div>
+
+                <button class="tc-generate-btn" id="tc-generate-btn" type="button">🎨 Tạo ảnh</button>
+                <button class="tc-download-btn" id="tc-download-btn" type="button">⬇️ Tải ảnh (1080×1920)</button>
+            </div>
+
+            <!-- PREVIEW -->
+            <div class="tc-preview-wrap">
+                <button class="tc-preview-close-btn" id="tc-preview-close-btn" type="button" title="Quay lại điều khiển">✕</button>
+                <div class="tc-canvas-frame" id="tc-canvas-frame">
+                    <canvas id="tc-canvas" width="1080" height="1920"></canvas>
+                    <div class="tc-safe-zone top" id="tc-safe-zone-top"></div>
+                    <div class="tc-safe-zone bottom" id="tc-safe-zone-bottom"></div>
+                </div>
+                <p class="tc-preview-note" id="tc-preview-note"></p>
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- DONATE -->
+    <section class="donate-section">
+        <div class="donate-inner"><div class="donate-copy"><span class="donate-kicker">Ủng hộ người nghèo</span><h2>Mong mọi người ủng hộ mình cốc nước mía</h2><p>Mình cảm ơn mọi người đã ủng hộ và sử dụng web</p><div class="donate-bank-details"><div><span class="donate-detail-icon">🏦</span><span class="donate-detail-label">MB Bank</span></div><div><span class="donate-detail-icon">💳</span><strong>8366336881711</strong></div><div><span class="donate-detail-icon">👤</span><span><span class="donate-detail-label">Tên TK:</span> Nguyen Hoang Phuc</span></div></div></div><div class="donate-qr-wrap"><img class="donate-qr" src="donate.jpg" alt="Mã QR ủng hộ Phúc" loading="lazy"><span>Quét mã để ủng hộ</span></div></div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>© 2026 Pokédex Database</p>
+    </footer>
+
+
+    <script>
+        const headerSearchInput = document.getElementById("header-search-input");
+        const headerSearchButton = document.getElementById("header-search-button");
+
+        function openDatabase(searchValue) {
+            const search = searchValue.trim();
+            const destination = search
+                ? `PokemonDatabase.html?search=${encodeURIComponent(search)}`
+                : "PokemonDatabase.html";
+            window.location.href = destination;
+        }
+
+        headerSearchButton.addEventListener("click", () => openDatabase(headerSearchInput.value));
+        headerSearchInput.addEventListener("keydown", event => {
+            if (event.key === "Enter") openDatabase(headerSearchInput.value);
+        });
+    </script>
+
+    <script src="language.js"></script>
+    <script src="typechart-data.js"></script>
+    <script src="trainercard.js"></script>
+</body>
+
+</html>

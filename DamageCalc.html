@@ -24,13 +24,14 @@
         </div>
 
         <nav>
-            <a href="index.html">Pokédex</a>
+            <a href="index.html">📚 Pokédex</a>
             <a href="PokemonDatabase.html">PokemonDatabase</a>
             <a href="Types.html">Types</a>
             <a href="Meta.html">Meta</a>
             <a href="Chatbot.html">Chatbot</a>
             <a href="TeamBuilder.html">Team Builder</a>
-            <a class="nav-active" href="DamageCalc.html">Damage Calc</a>
+            <a href="TrainerCard.html">Trainer Card</a>
+            <a class="nav-active" href="DamageCalc.html">Calculate</a>
         </nav>
 
         <div class="header-search">
@@ -53,11 +54,11 @@
             </p>
 
             <h1>
-                TÍNH <span>SÁT THƯƠNG</span>
+                DAMAGE <span>CALCULATOR</span>
             </h1>
 
             <p class="description">
-                Ước lượng sát thương giữa 2 Pokémon — công thức game chuẩn Level 50, IV 31 cố định và EV tuỳ chỉnh.
+                Estimate damage between two Pokémon — using standard Level 50 battle formulas, fixed IV 31, and adjustable EVs.
             </p>
 
         </div>
@@ -72,12 +73,12 @@
 
             <!-- ATTACKER -->
             <div class="detail-card dc-card">
-                <h3 class="card-title">⚔️ BÊN TẤN CÔNG</h3>
+                <h3 class="card-title">⚔️ ATTACKER</h3>
 
                 <div class="dc-search-wrap" id="dc-atk-wrap">
                     <div class="meta-search-box">
                         <span>🔍</span>
-                        <input id="dc-atk-input" type="text" placeholder="Chọn Pokémon tấn công..." autocomplete="off">
+                        <input id="dc-atk-input" type="text" placeholder="Choose attacking Pokémon..." autocomplete="off">
                     </div>
                     <div class="search-suggestions" id="dc-atk-suggestions"></div>
                 </div>
@@ -98,8 +99,8 @@
                 </div>
 
                 <div class="dc-field" id="dc-move-field" hidden>
-                    <label class="dc-label">Chiêu thức</label>
-                    <input id="dc-move-search" class="dc-search-input" type="search" placeholder="Tìm tên chiêu thức..." autocomplete="off">
+                    <label class="dc-label">Move</label>
+                    <input id="dc-move-search" class="dc-search-input" type="search" placeholder="Search moves..." autocomplete="off">
                     <select id="dc-move-select" class="dc-select"></select>
                 </div>
 
@@ -110,7 +111,7 @@
                 </div>
 
                 <div class="dc-boost-row" id="dc-atk-boost-row" hidden>
-                    <label class="dc-label">Buff/Debuff sức tấn công</label>
+                    <label class="dc-label">Attack stat stage</label>
                     <select id="dc-atk-stage" class="dc-select">
                         <option value="-2">-2</option>
                         <option value="-1">-1</option>
@@ -123,12 +124,12 @@
 
             <!-- DEFENDER -->
             <div class="detail-card dc-card">
-                <h3 class="card-title">🛡️ BÊN PHÒNG THỦ</h3>
+                <h3 class="card-title">🛡️ DEFENDER</h3>
 
                 <div class="dc-search-wrap" id="dc-def-wrap">
                     <div class="meta-search-box">
                         <span>🔍</span>
-                        <input id="dc-def-input" type="text" placeholder="Chọn Pokémon phòng thủ..." autocomplete="off">
+                        <input id="dc-def-input" type="text" placeholder="Choose defending Pokémon..." autocomplete="off">
                     </div>
                     <div class="search-suggestions" id="dc-def-suggestions"></div>
                 </div>
@@ -149,7 +150,7 @@
                 </div>
 
                 <div class="dc-boost-row" id="dc-def-boost-row" hidden>
-                    <label class="dc-label">Buff/Debuff phòng thủ</label>
+                    <label class="dc-label">Defense stat stage</label>
                     <select id="dc-def-stage" class="dc-select">
                         <option value="-2">-2</option>
                         <option value="-1">-1</option>
@@ -169,10 +170,10 @@
         </div>
 
         <section class="detail-card dc-battle-settings">
-            <h3 class="card-title">⚙️ ĐIỀU KIỆN TRẬN ĐẤU</h3>
+            <h3 class="card-title">⚙️ BATTLE CONDITIONS</h3>
             <div class="dc-settings-grid">
                 <div class="dc-field">
-                    <label class="dc-label" for="dc-atk-item">Item bên Attacker</label>
+                    <label class="dc-label" for="dc-atk-item">Attacker item</label>
                     <select id="dc-atk-item" class="dc-select">
                         <option value="none">Không có item</option>
                         <option value="choice-band">Choice Band</option>
@@ -202,7 +203,7 @@
                     <div class="dc-selection-preview" id="dc-atk-item-preview" aria-live="polite"></div>
                 </div>
                 <div class="dc-field">
-                    <label class="dc-label" for="dc-def-item">Item bên Defender</label>
+                    <label class="dc-label" for="dc-def-item">Defender item</label>
                     <select id="dc-def-item" class="dc-select">
                         <option value="none">Không có item</option>
                         <option value="eviolite">Eviolite</option>
@@ -211,20 +212,20 @@
                     <div class="dc-selection-preview" id="dc-def-item-preview" aria-live="polite"></div>
                 </div>
                 <div class="dc-field">
-                    <label class="dc-label" for="dc-weather">Thời tiết</label>
+                    <label class="dc-label" for="dc-weather">Weather</label>
                     <select id="dc-weather" class="dc-select">
-                        <option value="none">Không có</option>
-                        <option value="sun">Nắng</option>
-                        <option value="rain">Mưa</option>
-                        <option value="sand">Bão cát</option>
-                        <option value="snow">Tuyết</option>
+                        <option value="none">None</option>
+                        <option value="sun">Sun</option>
+                        <option value="rain">Rain</option>
+                        <option value="sand">Sandstorm</option>
+                        <option value="snow">Snow</option>
                     </select>
                     <div class="dc-selection-preview" id="dc-weather-preview" aria-live="polite"></div>
                 </div>
                 <div class="dc-field">
                     <label class="dc-label" for="dc-terrain">Terrain</label>
                     <select id="dc-terrain" class="dc-select">
-                        <option value="none">Không có</option>
+                        <option value="none">None</option>
                         <option value="electric">Electric Terrain</option>
                         <option value="grassy">Grassy Terrain</option>
                         <option value="psychic">Psychic Terrain</option>
@@ -233,26 +234,26 @@
                 </div>
                 <label class="dc-check-field">
                     <input id="dc-helping-hand" type="checkbox">
-                    <span>Được Helping Hand</span>
+                    <span>Helping Hand active</span>
                 </label>
                 <label class="dc-check-field">
                     <input id="dc-crit" type="checkbox">
-                    <span>Đòn đánh chí mạng</span>
+                    <span>Critical hit</span>
                 </label>
                 <label class="dc-check-field">
                     <input id="dc-atk-low-hp" type="checkbox">
-                    <span>Attacker còn ≤ 1/3 HP</span>
+                    <span>Attacker at ≤ 1/3 HP</span>
                 </label>
                 <label class="dc-check-field">
                     <input id="dc-def-full-hp" type="checkbox" checked>
-                    <span>Defender còn đầy HP</span>
+                    <span>Defender at full HP</span>
                 </label>
                 <label class="dc-check-field">
                     <input id="dc-def-disguise" type="checkbox" checked>
-                    <span>Disguise của Defender chưa vỡ</span>
+                    <span>Defender's Disguise intact</span>
                 </label>
                 <div class="dc-field">
-                    <label class="dc-label" for="dc-def-status">Status của Defender</label>
+                    <label class="dc-label" for="dc-def-status">Defender status</label>
                     <select id="dc-def-status" class="dc-select">
                         <option value="none">Không bị status</option>
                         <option value="burn">Burn</option>
@@ -265,10 +266,10 @@
                 </div>
                 <label class="dc-check-field">
                     <input id="dc-def-ice-face" type="checkbox" checked>
-                    <span>Ice Face của Defender chưa vỡ</span>
+                    <span>Defender's Ice Face intact</span>
                 </label>
                 <div class="dc-field">
-                    <label class="dc-label" for="dc-atk-status">Status của Attacker</label>
+                    <label class="dc-label" for="dc-atk-status">Attacker status</label>
                     <select id="dc-atk-status" class="dc-select">
                         <option value="none">Không bị status</option>
                         <option value="burn">Burn</option>
@@ -279,26 +280,26 @@
                 </div>
                 <label class="dc-check-field">
                     <input id="dc-flash-fire" type="checkbox">
-                    <span>Flash Fire đã kích hoạt</span>
+                    <span>Flash Fire activated</span>
                 </label>
                 <label class="dc-check-field">
                     <input id="dc-def-switched-in" type="checkbox">
-                    <span>Defender vừa switch in</span>
+                    <span>Defender just switched in</span>
                 </label>
                 <label class="dc-check-field">
                     <input id="dc-attacker-moves-second" type="checkbox">
-                    <span>Attacker đi sau</span>
+                    <span>Attacker moves second</span>
                 </label>
                 <div class="dc-field">
-                    <label class="dc-label" for="dc-rivalry">Giới tính</label>
+                    <label class="dc-label" for="dc-rivalry">Gender</label>
                     <select id="dc-rivalry" class="dc-select">
-                        <option value="unknown">Không xác định</option>
-                        <option value="same">Cùng giới</option>
-                        <option value="different">Khác giới</option>
+                        <option value="unknown">Unknown</option>
+                        <option value="same">Same gender</option>
+                        <option value="different">Different gender</option>
                     </select>
                 </div>
                 <div class="dc-field">
-                    <label class="dc-label" for="dc-fainted-allies">Số đồng đội Attacker đã bị hạ</label>
+                    <label class="dc-label" for="dc-fainted-allies">Fainted Attacker teammates</label>
                     <select id="dc-fainted-allies" class="dc-select">
                         <option value="0">0</option>
                         <option value="1">1</option>
@@ -313,34 +314,34 @@
 
         <div class="dc-calculate-action">
             <button id="dc-start-calc" class="dc-start-calc" type="button" disabled>
-                ⚡ Bắt đầu tính dame
+                ⚡ Start damage calculation
             </button>
             <p id="dc-calc-status" class="dc-calc-status" aria-live="polite">
-                Vui lòng chọn đủ Pokémon để tính dame.
+                Please select both Pokémon to calculate damage.
             </p>
         </div>
 
         <!-- RESULT -->
         <div class="detail-card dc-result margin-top" id="dc-result">
             <p class="meta-detail-placeholder">
-                👆 Chọn Pokémon tấn công, chiêu thức, và Pokémon phòng thủ để xem kết quả.
+                👆 Choose an attacking Pokémon, a move, and a defending Pokémon to view the results.
             </p>
         </div>
 
         <p class="dc-disclaimer">
-            ⚠️ Công cụ dùng công thức Pokémon chuẩn Level 50, IV 31 cố định, EV tối đa 252 mỗi chỉ số và tổng 510 EV.
-            Nature, Ability, item, thời tiết, terrain, chí mạng, Helping Hand, STAB, khắc hệ và 39 mức random damage được áp dụng.
-            Ability phụ thuộc HP chỉ được kích hoạt khi bật điều kiện HP thấp. Chưa tính màn chắn, burn, stat boost phát sinh từ lượt trước và hiệu ứng tình huống khác.
+            ⚠️ This tool uses standard Pokémon battle formulas at Level 50, fixed IV 31, with a maximum of 252 EVs per stat and 510 total EVs.
+            Nature, Ability, item, weather, terrain, critical hits, Helping Hand, STAB, type matchups, and 39 random damage rolls are applied.
+            HP-based abilities only activate when the low-HP condition is enabled. This calculator does not include shields, burn, prior-turn stat boosts, or other situational effects.
         </p>
 
         <details class="dc-algorithm">
-            <summary>Thuật toán tính damage</summary>
+            <summary>Damage algorithm</summary>
             <ol>
-                <li>Tính stat Level 50 từ Base Stat, IV 31, EV và Nature: HP = floor((2 × Base + IV + floor(EV/4)) × 50/100) + 60; stat khác = floor((floor((2 × Base + IV + floor(EV/4)) × 50/100) + 5) × Nature).</li>
-                <li>Áp dụng stage, Ability thay đổi stat, item stat và các điều kiện HP/weather.</li>
-                <li>Xác định type, Base Power sau Ability, STAB và type effectiveness.</li>
-                <li>Áp dụng weather, terrain, item damage, Ability phòng thủ, critical hit và Helping Hand theo thứ tự modifier.</li>
-                <li>Tính đủ 39 roll ngẫu nhiên từ 217 đến 255; kết quả là min-max thực tế.</li>
+                <li>Compute Level 50 stats from base stats, IV 31, EVs, and Nature: HP = floor((2 × Base + IV + floor(EV/4)) × 50/100) + 60; other stats = floor((floor((2 × Base + IV + floor(EV/4)) × 50/100) + 5) × Nature).</li>
+                <li>Apply stage changes, stat-altering abilities, stat items, and HP/weather conditions.</li>
+                <li>Determine move type, base power after abilities, STAB, and type effectiveness.</li>
+                <li>Apply weather, terrain, damage items, defensive abilities, critical hits, and Helping Hand in modifier order.</li>
+                <li>Roll 39 random values from 217 to 255; the result is the real min-max damage range.</li>
             </ol>
         </details>
 

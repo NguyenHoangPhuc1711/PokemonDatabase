@@ -24,13 +24,14 @@
         </div>
 
         <nav>
-            <a href="index.html">Pokédex</a>
+            <a href="index.html">📚 Pokédex</a>
             <a href="PokemonDatabase.html">PokemonDatabase</a>
             <a class="nav-active" href="Types.html">Types</a>
             <a href="Meta.html">Meta</a>
             <a href="Chatbot.html">Chatbot</a>
             <a href="TeamBuilder.html">Team Builder</a>
-            <a href="DamageCalc.html">Damage Calc</a>
+            <a href="TrainerCard.html">Trainer Card</a>
+            <a href="DamageCalc.html">Calculate</a>
         </nav>
 
         <div class="header-search">
@@ -53,12 +54,12 @@
             </p>
 
             <h1>
-                BẢNG <span>TƯƠNG KHẮC</span> HỆ
+                TYPE <span>EFFECTIVENESS</span> CHART
             </h1>
 
             <p class="description">
-                Chọn một hệ bên dưới để xem hệ đó tấn công mạnh/yếu vào đâu,
-                và bị hệ nào khắc chế khi phòng thủ.
+                Select a type below to see which types it hits strongly or weakly,
+                and which types counter it on defense.
             </p>
 
         </div>
@@ -71,8 +72,8 @@
 
         <div class="section-header">
             <div>
-                <p class="section-label">CHỌN HỆ</p>
-                <h2>18 hệ Pokémon</h2>
+                <p class="section-label">CHOOSE TYPE</p>
+                <h2>18 Pokémon types</h2>
             </div>
         </div>
 
@@ -85,13 +86,13 @@
 
             <div class="detail-card type-pros-card">
                 <h3 class="card-title">
-                    TẤN CÔNG <em id="attack-type-label">—</em> ƯU &amp; NHƯỢC ĐIỂM
+                    OFFENSE <em id="attack-type-label">—</em> STRENGTHS &amp; WEAKNESSES
                 </h3>
 
                 <div class="pros-cons-block">
                     <p class="pros-cons-heading pros">
                         <span class="pros-cons-icon good">✓</span>
-                        Đòn <em id="attack-name-1">—</em> gây <strong>sát thương chí mạng</strong> (2x) lên:
+                        Moves of <em id="attack-name-1">—</em> deal <strong>super-effective</strong> (2x) damage to:
                     </p>
                     <div class="type-badge-row" id="attack-super-list"></div>
                 </div>
@@ -99,7 +100,7 @@
                 <div class="pros-cons-block">
                     <p class="pros-cons-heading cons">
                         <span class="pros-cons-icon bad">✕</span>
-                        Đòn <em id="attack-name-2">—</em> gây <strong>ít sát thương</strong> (0.5x) lên:
+                        Moves of <em id="attack-name-2">—</em> deal <strong>reduced</strong> (0.5x) damage to:
                     </p>
                     <div class="type-badge-row" id="attack-notvery-list"></div>
                 </div>
@@ -107,7 +108,7 @@
                 <div class="pros-cons-block" id="attack-noeffect-block" hidden>
                     <p class="pros-cons-heading none">
                         <span class="pros-cons-icon none">–</span>
-                        Đòn <em id="attack-name-3">—</em> <strong>không có tác dụng</strong> (0x) lên:
+                        Moves of <em id="attack-name-3">—</em> have <strong>no effect</strong> (0x) on:
                     </p>
                     <div class="type-badge-row" id="attack-noeffect-list"></div>
                 </div>
@@ -115,13 +116,13 @@
 
             <div class="detail-card type-pros-card">
                 <h3 class="card-title">
-                    PHÒNG THỦ <em id="defense-type-label">—</em> ƯU &amp; NHƯỢC ĐIỂM
+                    DEFENSE <em id="defense-type-label">—</em> STRENGTHS &amp; WEAKNESSES
                 </h3>
 
                 <div class="pros-cons-block">
                     <p class="pros-cons-heading pros">
                         <span class="pros-cons-icon good">✓</span>
-                        Các hệ này <strong>gây ít sát thương</strong> lên hệ <em id="defense-name-1">—</em>:
+                        These types deal <strong>reduced damage</strong> to <em id="defense-name-1">—</em>:
                     </p>
                     <div class="type-badge-row" id="defense-resist-list"></div>
                 </div>
@@ -129,7 +130,7 @@
                 <div class="pros-cons-block">
                     <p class="pros-cons-heading cons">
                         <span class="pros-cons-icon bad">✕</span>
-                        Các hệ này <strong>khắc chế</strong> hệ <em id="defense-name-2">—</em>:
+                        These types <strong>counter</strong> <em id="defense-name-2">—</em>:
                     </p>
                     <div class="type-badge-row" id="defense-weak-list"></div>
                 </div>
@@ -137,7 +138,7 @@
                 <div class="pros-cons-block" id="defense-immune-block" hidden>
                     <p class="pros-cons-heading none">
                         <span class="pros-cons-icon none">–</span>
-                        Hệ <em id="defense-name-3">—</em> <strong>miễn nhiễm</strong> với:
+                        <em id="defense-name-3">—</em> is <strong>immune</strong> to:
                     </p>
                     <div class="type-badge-row" id="defense-immune-list"></div>
                 </div>
@@ -149,11 +150,11 @@
         <!-- DUAL TYPE CHART -->
         <div class="detail-card dual-type-card margin-top">
             <h3 class="card-title">
-                BIỂU ĐỒ TẤN CÔNG <em id="dual-type-label">—</em> VỚI HỆ ĐÔI
+                OFFENSIVE CHART FOR <em id="dual-type-label">—</em> DUAL TYPES
             </h3>
 
             <p class="dual-type-desc" id="dual-type-desc">
-                Chọn một hệ ở trên để xem.
+                Select a type above to view.
             </p>
 
             <div class="type-chart-legend">

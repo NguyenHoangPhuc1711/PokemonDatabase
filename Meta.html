@@ -24,13 +24,14 @@
         </div>
 
         <nav>
-            <a href="index.html">Pokédex</a>
+            <a href="index.html">📚 Pokédex</a>
             <a href="PokemonDatabase.html">PokemonDatabase</a>
             <a href="Types.html">Types</a>
             <a class="nav-active" href="Meta.html">Meta</a>
             <a href="Chatbot.html">Chatbot</a>
             <a href="TeamBuilder.html">Team Builder</a>
-            <a href="DamageCalc.html">Damage Calc</a>
+            <a href="TrainerCard.html">Trainer Card</a>
+            <a href="DamageCalc.html">Calculate</a>
         </nav>
 
         <div class="header-search">
@@ -57,8 +58,8 @@
             </h1>
 
             <p class="description">
-                Top Pokémon được dùng nhiều nhất, cùng chiêu thức, vật phẩm, đồng đội
-                và bản chất phổ biến nhất — cập nhật trực tiếp từ dữ liệu trận đấu thật.
+                The most used Pokémon, along with the most common moves, items, teammates,
+                and popular natures — updated directly from real battle data.
             </p>
 
             <div class="meta-format-toggle" id="meta-format-toggle">
@@ -81,10 +82,10 @@
                 <input
                     id="meta-search-input"
                     type="text"
-                    placeholder="Gõ 2-3 chữ (vd: bas, char, gar...) để xem gợi ý"
+                    placeholder="Type 2-3 letters (e.g. bas, char, gar...) to see suggestions"
                     autocomplete="off"
                 >
-                <button id="meta-search-button" type="button">Tra cứu</button>
+                <button id="meta-search-button" type="button">Search</button>
             </div>
             <div class="search-suggestions" id="meta-search-suggestions"></div>
         </div>
@@ -93,8 +94,7 @@
         <div class="section-header">
             <div>
                 <p class="section-label" id="meta-rank-label">TOP 10 · DOUBLES</p>
-                <h2>Pokémon được dùng nhiều nhất</h2>
-                <p class="meta-rank-note">Danh sách tham khảo — bấm vào 1 Pokémon để xem số liệu chi tiết cập nhật trực tiếp.</p>
+                <h2>Most used Pokémon</h2>
             </div>
         </div>
 
@@ -108,16 +108,16 @@
         <!-- DETAIL PANEL -->
         <div class="detail-card meta-detail margin-top" id="meta-detail">
             <p class="meta-detail-placeholder" id="meta-detail-placeholder">
-                👆 Chọn một Pokémon ở trên, hoặc tra cứu tên bất kỳ ở ô tìm kiếm,
-                để xem chiêu thức / vật phẩm / đồng đội được dùng nhiều nhất — dữ liệu lấy trực tiếp, thời gian thực.
+                👆 Select a Pokémon above, or search any name in the box,
+                to view the most used moves / items / teammates — live data pulled directly in real time.
             </p>
         </div>
 
         <p class="meta-attribution">
-            📡 Chiêu thức, vật phẩm, đồng đội, kỹ năng và bản chất/EV bên dưới được lấy từ
+            📡 The moves, items, teammates, abilities, and nature/EV data below are pulled from
             <a href="https://eurekaffeine.github.io/pokemon-champions-scraper/" target="_blank" rel="noopener">Pokémon Champions Battle Meta API</a>.
-            Nguồn tổng hợp dữ liệu Ranked Battle của Pokémon Champions, gồm usage, chiêu thức, vật phẩm, kỹ năng và đồng đội cho từng Pokémon.
-            Đây là API cộng đồng, không phải API chính thức của Nintendo / The Pokémon Company.
+            This is a compilation of Ranked Battle data for Pokémon Champions, including usage, moves, items, abilities, and teammates for each Pokémon.
+            This is a community API, not an official Nintendo / The Pokémon Company API.
         </p>
 
     </main>

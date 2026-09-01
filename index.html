@@ -32,13 +32,14 @@
         </div>
 
         <nav>
-            <a class="nav-active" href="index.html">Pokédex</a>
+            <a class="nav-active" href="index.html">📚 Pokédex</a>
             <a href="PokemonDatabase.html">PokemonDatabase</a>
             <a href="Types.html">Types</a>
             <a href="Meta.html">Meta</a>
             <a href="Chatbot.html">Chatbot</a>
             <a href="TeamBuilder.html">Team Builder</a>
-            <a href="DamageCalc.html">Damage Calc</a>
+            <a href="TrainerCard.html">Trainer Card</a>
+            <a href="DamageCalc.html">Calculate</a>
         </nav>
 
         <div class="header-search">
@@ -61,17 +62,17 @@
                         <em>Pokédex toàn diện cho mọi Trainer</em>
                     </span>
                 </div>
-                <h1>Khám phá thế giới <span>Pokémon</span></h1>
-                <p class="hero-slogan">Thông tin , Dữ liệu , Cập nhật meta chuẩn xác</p>
-                <a class="hero-action" href="PokemonDatabase.html">Khám phá Pokédex <span>→</span></a>
+                <h1>Explore the world of <span>Pokémon</span></h1>
+                <p class="hero-slogan">Info, data, and accurate meta updates</p>
+                <a class="hero-action" href="PokemonDatabase.html">Explore Pokédex <span>→</span></a>
             </div>
 
             <div class="hero-art hero-art-left">
-                <img id="hero-pokemon-image" src="hero-pokemon.png" alt="Pokémon minh họa 1" decoding="async" fetchpriority="high">
-                <div class="hero-pokemon-controls" aria-label="Chọn Pokémon nổi bật">
-                    <button id="hero-pokemon-prev" type="button" aria-label="Ảnh trước">‹</button>
+                <img id="hero-pokemon-image" src="hero-pokemon.png" alt="Illustrated Pokémon 1" decoding="async" fetchpriority="high">
+                <div class="hero-pokemon-controls" aria-label="Choose featured Pokémon">
+                    <button id="hero-pokemon-prev" type="button" aria-label="Previous image">‹</button>
                     <div class="hero-pokemon-dots" id="hero-pokemon-dots"></div>
-                    <button id="hero-pokemon-next" type="button" aria-label="Ảnh tiếp theo">›</button>
+                    <button id="hero-pokemon-next" type="button" aria-label="Next image">›</button>
                 </div>
             </div>
         </section>
@@ -117,7 +118,7 @@
             heroPokemonImage.classList.remove("is-changing");
             void heroPokemonImage.offsetWidth;
             heroPokemonImage.src = heroPokemonImages[heroPokemonIndex];
-            heroPokemonImage.alt = `Pokémon minh họa ${heroPokemonIndex + 1}`;
+            heroPokemonImage.alt = `Illustrated Pokémon ${heroPokemonIndex + 1}`;
             heroPokemonImage.classList.add("is-raised");
             heroPokemonImage.classList.toggle("is-large", heroPokemonIndex >= 2);
             heroPokemonImage.classList.toggle("is-small", heroPokemonIndex === 5);
@@ -129,7 +130,7 @@
         }
 
         heroPokemonDots.innerHTML = heroPokemonImages.map((_, index) =>
-            `<button type="button" aria-label="Hiển thị ảnh ${index + 1}"></button>`
+            `<button type="button" aria-label="Show image ${index + 1}"></button>`
         ).join("");
         heroPokemonDots.querySelectorAll("button").forEach((dot, index) => {
             dot.addEventListener("click", () => renderHeroPokemon(index));
