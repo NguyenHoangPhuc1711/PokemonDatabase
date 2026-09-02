@@ -173,7 +173,7 @@ function buildSuggestionList(box, query, onPick) {
 
     box.innerHTML = matches.map(p => `
         <div class="tc-suggestion-item" data-name="${p.name}" data-id="${p.id}">
-            <img src="${spriteIconUrl(p.id)}" alt="${p.name}" loading="lazy">
+            <img src="${spriteIconUrl(p.id)}" alt="${p.name}" loading="lazy" crossorigin="anonymous">
             <span>${capitalizeWords(p.name)}</span>
         </div>
     `).join("");
@@ -209,6 +209,7 @@ avatarModeRow.addEventListener("click", event => {
 avatarSpriteInput.addEventListener("input", () => {
     buildSuggestionList(avatarSpriteSuggestions, avatarSpriteInput.value.trim().toLowerCase(), (name, id) => {
         avatarSprite = { name, url: spriteIconUrl(id) };
+        avatarSpriteImgEl.crossOrigin = "anonymous";
         avatarSpriteImgEl.src = avatarSprite.url;
         avatarSpriteNameEl.textContent = capitalizeWords(name);
         avatarSpritePreview.classList.add("active");
@@ -254,6 +255,7 @@ function renderHeroPreview() {
         heroPreview.classList.remove("active");
         return;
     }
+    heroImgEl.crossOrigin = "anonymous";
     heroImgEl.src = currentHeroArt(heroPokemon);
     heroNameEl.textContent = capitalizeWords(heroPokemon.name);
     heroShinyBtn.classList.toggle("active", heroPokemon.shiny);
@@ -324,7 +326,7 @@ function renderTeamChips() {
     teamCountEl.textContent = `${teamMembers.length}/5`;
     teamChipsBox.innerHTML = teamMembers.map(p => `
         <div class="tc-chip">
-            <img src="${p.url}" alt="${p.name}">
+            <img src="${p.url}" alt="${p.name}" crossorigin="anonymous">
             <span>${capitalizeWords(p.name)}</span>
             <button class="tc-chip-remove" type="button" data-team-remove="${p.name}" aria-label="Xoá">✕</button>
         </div>
@@ -2179,27 +2181,54 @@ async function renderCard() {
 // ========================================
 // PREVIEW EXPANSION / COLLAPSE
 // ========================================
+// Trên mobile, preview mở thành overlay cố định (position: fixed) toàn màn hình —
+// khoá cuộn nền bằng kỹ thuật "position:fixed + lưu lại scrollY" để không bị
+// giật/nhảy vị trí khi mở overlay, và khi đóng thì trả về đúng chỗ đang xem trước đó.
+
+let lockedScrollY = 0;
+
+function lockBodyScroll() {
+    lockedScrollY = window.scrollY || window.pageYOffset || 0;
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${lockedScrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
+}
+
+function unlockBodyScroll() {
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.left = "";
+    document.body.style.right = "";
+    document.body.style.width = "";
+    window.scrollTo(0, lockedScrollY);
+}
 
 function expandPreview() {
     if (!tcLayout) return;
-    if (window.innerWidth >= 768) {
-        tcLayout.classList.remove("preview-expanded");
-        document.body.style.overflow = "";
-        return;
-    }
+    if (window.innerWidth >= 768) return; // desktop không cần overlay toàn màn hình
     tcLayout.classList.add("preview-expanded");
-    document.body.style.overflow = "hidden";
+    lockBodyScroll();
 }
 
 function collapsePreview() {
     if (!tcLayout) return;
     tcLayout.classList.remove("preview-expanded");
-    document.body.style.overflow = "";
+    unlockBodyScroll();
 }
 
 if (previewCloseBtn) {
     previewCloseBtn.addEventListener("click", collapsePreview);
 }
+
+// Nếu người dùng xoay ngang / thay đổi kích thước cửa sổ qua ngưỡng desktop
+// trong lúc đang mở overlay, tự đóng overlay để tránh kẹt trạng thái khoá cuộn.
+window.addEventListener("resize", () => {
+    if (window.innerWidth >= 768 && tcLayout && tcLayout.classList.contains("preview-expanded")) {
+        collapsePreview();
+    }
+});
 
 
 // ========================================
@@ -2213,11 +2242,14 @@ generateBtn.addEventListener("click", async () => {
         await renderCard();
         downloadBtn.classList.add("ready");
 
-        // Desktop: scroll preview vào view nhưng không bắt buộc chuyển sang giao diện preview.
         if (window.innerWidth >= 768) {
+            // Desktop: cuộn preview vào giữa màn hình, không chuyển giao diện
             setTimeout(() => {
                 canvasFrame.scrollIntoView({ behavior: "smooth", block: "center" });
             }, 300);
+        } else {
+            // Mobile: mở ngay overlay xem trước toàn màn hình — khỏi phải dò cuộn tìm ảnh
+            expandPreview();
         }
     } finally {
         generateBtn.disabled = false;
@@ -2225,13 +2257,43 @@ generateBtn.addEventListener("click", async () => {
     }
 });
 
-downloadBtn.addEventListener("click", () => {
-    const link = document.createElement("a");
+downloadBtn.addEventListener("click", handleDownload);
+
+function handleDownload() {
     const trainerName = nameInput.value.trim() || "trainer";
-    link.download = `${trainerName.toLowerCase().replace(/\s+/g, "-")}-trainer-card.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-});
+    const filename = `${trainerName.toLowerCase().replace(/\s+/g, "-")}-trainer-card.png`;
+
+    const triggerDownload = url => {
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        // Một số trình duyệt mobile (Safari/WebView) chỉ kích hoạt tải khi thẻ <a> nằm trong DOM
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const fallbackToDataUrl = () => {
+        try {
+            triggerDownload(canvas.toDataURL("image/png"));
+        } catch (err) {
+            console.error("Tải ảnh thất bại:", err);
+            alert("Không tải được ảnh do lỗi bảo mật khi tải hình Pokémon (CORS). Hãy bấm \"Tạo ảnh\" lại một lần nữa, hoặc tải lại trang rồi thử lại.");
+        }
+    };
+
+    try {
+        // toBlob tiết kiệm bộ nhớ hơn toDataURL — ổn định hơn trên điện thoại với ảnh lớn
+        canvas.toBlob(blob => {
+            if (!blob) { fallbackToDataUrl(); return; }
+            const url = URL.createObjectURL(blob);
+            triggerDownload(url);
+            setTimeout(() => URL.revokeObjectURL(url), 4000);
+        }, "image/png");
+    } catch (err) {
+        fallbackToDataUrl();
+    }
+}
 
 
 // ========================================

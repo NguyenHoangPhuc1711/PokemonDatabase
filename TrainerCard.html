@@ -496,7 +496,7 @@
             line-height: 1.6;
         }
 
-        /* === RESPONSIVE PREVIEW EXPANSION === */
+        /* === RESPONSIVE PREVIEW EXPANSION (fullscreen overlay trên mobile) === */
         .tc-layout.preview-expanded {
             grid-template-columns: 1fr;
         }
@@ -512,7 +512,6 @@
         .tc-layout.preview-expanded .tc-canvas-frame {
             width: 100%;
             max-width: 1000px;
-            aspect-ratio: 16 / 9;
             margin: 0 auto;
         }
 
@@ -521,7 +520,7 @@
             position: absolute;
             top: 20px;
             right: 20px;
-            z-index: 100;
+            z-index: 310;
             width: 44px;
             height: 44px;
             border: none;
@@ -537,8 +536,28 @@
             background: rgba(0,0,0,0.8);
         }
 
-        /* Close button chỉ hiển thị trên mobile khi preview expand */
+        /* Trên mobile: preview mở rộng thành overlay CỐ ĐỊNH toàn màn hình (position: fixed),
+           không phụ thuộc vị trí cuộn trang — tránh mọi hiện tượng giật/xê dịch khi mở/đóng. */
         @media (max-width: 768px) {
+            .tc-layout.preview-expanded {
+                position: fixed;
+                inset: 0;
+                z-index: 300;
+                background: #0b0d13;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 24px 16px;
+                overflow-y: auto;
+                margin: 0;
+            }
+
+            .tc-layout.preview-expanded .tc-preview-wrap {
+                width: 100%;
+                max-width: 460px;
+                margin: auto;
+            }
+
             .tc-layout.preview-expanded .tc-preview-close-btn {
                 display: flex;
                 align-items: center;
