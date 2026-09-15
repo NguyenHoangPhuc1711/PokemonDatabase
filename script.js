@@ -225,7 +225,9 @@ function createPokemonCard(pokemon) {
 
 
         <h3>
-            ${name}
+            <a class="pokemon-card-seo-link" href="pokemon/${encodeURIComponent(pokemon.name)}/">
+                ${name}
+            </a>
         </h3>
 
 

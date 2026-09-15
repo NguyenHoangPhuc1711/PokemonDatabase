@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://pokemonif.com/sitemap.xml
+Sitemap: https://pokemonif.com/sitemap-pokemon.xml
+Sitemap: https://pokemonif.com/sitemap-types.xml
+Sitemap: https://pokemonif.com/sitemap-moves.xml
+Sitemap: https://pokemonif.com/sitemap-abilities.xml
+Sitemap: https://pokemonif.com/sitemap-items.xml

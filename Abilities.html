@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ability Database | PokemonInformation</title>
+    <link rel="stylesheet" href="style.css?v=20260916-2">
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo">
+            <span class="pokeball">●</span>
+            PokemonInformation
+            <button class="language-toggle" type="button" data-language-toggle>EN</button>
+        </div>
+
+        <nav>
+            <a href="index.html">📚 Pokédex</a>
+            <a href="PokemonDatabase.html">PokemonDatabase</a>
+            <a href="Types.html">Types</a>
+            <a href="Meta.html">Meta</a>
+            <a href="Moves.html">Moves</a>
+            <a href="Abilities.html" class="nav-active">Abilities</a>
+            <a href="Breeding.html">Breeding</a>
+            <a href="EVIV.html">EV/IV</a>
+            <a href="Chatbot.html">Chatbot</a>
+            <a href="TeamBuilder.html">Team Builder</a>
+            <a href="TrainerCard.html">Trainer Card</a>
+            <a href="DamageCalc.html">Calculate</a>
+        </nav>
+
+        <div class="header-search">
+            <span>🔍</span>
+            <input id="header-search-input" type="text" placeholder="Tìm Pokémon..." autocomplete="off">
+            <button id="header-search-button">Tìm</button>
+        </div>
+    </header>
+
+    <section class="hero meta-hero">
+        <div class="hero-content">
+            <p class="small-title">ABILITY DATABASE</p>
+            <h1>ABILITY <span>DEX</span></h1>
+            <p class="description">Tra cứu khả năng đặc biệt, mô tả hiệu ứng và các Pokémon sở hữu ability đó.</p>
+        </div>
+    </section>
+
+    <main class="container database-page">
+        <div class="database-toolbar">
+            <div class="database-field">
+                <label for="ability-search">Tìm ability</label>
+                <input id="ability-search" class="database-input" type="text" placeholder="Ví dụ: intimidate, drizzle..." autocomplete="off">
+            </div>
+        </div>
+
+        <div class="database-card">
+            <div class="ability-list" id="ability-list"></div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 Pokédex Database</p>
+    </footer>
+
+    <script src="ads.js"></script>
+    <script src="seo.js"></script>
+    <script src="language.js"></script>
+    <script src="ability-database.js"></script>
+</body>
+
+</html>

@@ -1,4 +1,66 @@
 const LANGUAGE_STORAGE_KEY = "pokemon-information-language";
+const POKEAPI_CACHE_PREFIX = "pokemon-pokeapi-cache:";
+const POKEAPI_CACHE_TTL = 24 * 60 * 60 * 1000;
+
+function installPokeApiCache() {
+    const nativeFetch = window.fetch.bind(window);
+    window.fetch = async (input, init = {}) => {
+        const method = (init.method || "GET").toUpperCase();
+        const url = typeof input === "string" ? input : input?.url || "";
+        if (method !== "GET" || !url.includes("pokeapi.co/api/v2/")) {
+            return nativeFetch(input, init);
+        }
+
+        const key = `${POKEAPI_CACHE_PREFIX}${url}`;
+        try {
+            const cached = JSON.parse(localStorage.getItem(key) || "null");
+            if (cached && Date.now() - cached.timestamp < POKEAPI_CACHE_TTL) {
+                return new Response(cached.body, { status: cached.status || 200, headers: cached.headers || {} });
+            }
+            if (cached) localStorage.removeItem(key);
+        } catch {
+            localStorage.removeItem(key);
+        }
+
+        const response = await nativeFetch(input, init);
+        if (!response.ok) return response;
+
+        try {
+            const body = await response.clone().text();
+            localStorage.setItem(key, JSON.stringify({
+                timestamp: Date.now(),
+                status: response.status,
+                headers: { "content-type": response.headers.get("content-type") || "application/json" },
+                body
+            }));
+        } catch {
+            // Private browsing or a full localStorage does not block the API response.
+        }
+        return response;
+    };
+}
+
+installPokeApiCache();
+
+function installLazyImageLoading() {
+    const markImages = root => {
+        root.querySelectorAll?.("img").forEach(image => {
+            if (!image.hasAttribute("fetchpriority") && !image.hasAttribute("loading")) {
+                image.loading = "lazy";
+            }
+            if (!image.hasAttribute("decoding")) image.decoding = "async";
+        });
+    };
+
+    markImages(document);
+    new MutationObserver(mutations => {
+        mutations.forEach(mutation => mutation.addedNodes.forEach(node => {
+            if (node.nodeType === Node.ELEMENT_NODE) markImages(node);
+        }));
+    }).observe(document.body, { childList: true, subtree: true });
+}
+
+installLazyImageLoading();
 
 if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 window.scrollTo(0, 0);
@@ -326,7 +388,176 @@ function applyLanguage(language) {
     window.dispatchEvent(new CustomEvent("languagechanged", { detail: language }));
 }
 
+function setupVerticalMenu() {
+    const header = document.querySelector(".header");
+    const nav = header?.querySelector("nav");
+    if (!header || !nav || nav.classList.contains("site-nav")) return;
+
+    nav.classList.add("site-nav");
+    const requiredLinks = [
+        ["Moves.html", "Moves"],
+        ["Abilities.html", "Abilities"],
+        ["Breeding.html", "Breeding"],
+        ["EVIV.html", "EV/IV"],
+        ["Compare.html", "Compare"]
+    ];
+    requiredLinks.forEach(([href, label]) => {
+        if (nav.querySelector(`a[href^="${href}"]`)) return;
+        const link = document.createElement("a");
+        link.href = href;
+        link.textContent = label;
+        nav.appendChild(link);
+    });
+
+    const navIcons = {
+        "index.html": "▤",
+        "pokemondatabase.html": "▦",
+        "types.html": "◐",
+        "meta.html": "↗",
+        "moves.html": "✦",
+        "abilities.html": "◆",
+        "breeding.html": "♧",
+        "eviv.html": "◫",
+        "compare.html": "⇄",
+        "chatbot.html": "◌",
+        "teambuilder.html": "♙",
+        "trainercard.html": "▣",
+        "damagecalc.html": "▦"
+    };
+    nav.querySelectorAll("a").forEach(link => {
+        if (link.querySelector(".site-nav-icon")) return;
+        link.textContent = link.textContent.replace(/^[^\p{L}\p{N}]+/u, "").trim();
+        const destination = (link.getAttribute("href") || "").split("?")[0].split("#")[0].split("/").pop().toLowerCase();
+        const icon = document.createElement("span");
+        icon.className = "site-nav-icon";
+        icon.setAttribute("aria-hidden", "true");
+        icon.textContent = navIcons[destination] || "•";
+        link.prepend(icon);
+    });
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "site-menu-toggle";
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.innerHTML = "<span>☰</span><span class=\"site-menu-label\">Menu</span>";
+    toggle.addEventListener("click", () => {
+        const isOpen = nav.classList.toggle("site-nav-open");
+        toggle.setAttribute("aria-expanded", String(isOpen));
+    });
+    header.insertBefore(toggle, header.firstElementChild);
+
+    const logo = header.querySelector(".logo");
+    if (logo) {
+        logo.classList.add("logo-home-link");
+        logo.setAttribute("role", "link");
+        logo.setAttribute("tabindex", "0");
+        logo.setAttribute("aria-label", "Về trang chủ");
+        const goHome = event => {
+            if (event.target.closest("[data-language-toggle]")) return;
+            window.location.href = "index.html";
+        };
+        logo.addEventListener("click", goHome);
+        logo.addEventListener("keydown", event => {
+            if (event.key === "Enter" || event.key === " ") goHome(event);
+        });
+    }
+}
+
+function setupGlobalSearch() {
+    const input = document.getElementById("header-search-input");
+    const button = document.getElementById("header-search-button");
+    const searchWrap = input?.closest(".header-search");
+    if (!input || !button || !searchWrap || searchWrap.querySelector(".global-search-results")) return;
+
+    const results = document.createElement("div");
+    results.className = "global-search-results";
+    results.setAttribute("role", "listbox");
+    searchWrap.appendChild(results);
+
+    let pokemonNamesPromise = null;
+    let searchTimer = null;
+
+    const featureLinks = [
+        ["Moves.html", "✦", "Move Dex"], ["Abilities.html", "◆", "Ability Dex"],
+        ["Meta.html", "↗", "Meta usage"], ["Types.html", "◐", "Type Chart"],
+        ["TeamBuilder.html", "♙", "Team Builder"], ["DamageCalc.html", "▦", "Damage Calculator"],
+        ["Compare.html", "⇄", "Compare Pokémon"]
+    ];
+
+    const escapeHtml = value => value.replace(/[&<>"']/g, char => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#039;"
+    }[char]));
+
+    async function loadPokemonNames() {
+        if (pokemonNamesPromise) return pokemonNamesPromise;
+        pokemonNamesPromise = fetch("https://pokeapi.co/api/v2/pokemon?limit=2000")
+            .then(response => response.json())
+            .then(data => data.results.map(item => ({
+                name: item.name,
+                id: item.url.split("/").filter(Boolean).pop()
+            })))
+            .catch(() => []);
+        return pokemonNamesPromise;
+    }
+
+    function showResults(query, pokemonNames) {
+        const normalized = query.toLowerCase().trim();
+        const matches = pokemonNames.filter(item => item.name.includes(normalized)).slice(0, 5);
+        const pokemonHtml = matches.map(item => {
+            const name = item.name.replace(/-/g, " ").replace(/\b\w/g, letter => letter.toUpperCase());
+            return `<a class="global-search-item pokemon-result" href="PokemonDatabase.html?search=${encodeURIComponent(item.name)}">
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${item.id}.png" alt="${escapeHtml(name)}" loading="lazy">
+                <span><strong>${escapeHtml(name)}</strong><small>#${String(item.id).padStart(3, "0")} · Pokémon</small></span>
+            </a>`;
+        }).join("");
+        const featureHtml = featureLinks.map(([href, icon, label]) =>
+            `<a class="global-search-item feature-result" href="${href}?search=${encodeURIComponent(query)}"><b>${icon}</b><span>${label}<small>Tìm “${escapeHtml(query)}”</small></span></a>`
+        ).join("");
+
+        results.innerHTML = `${pokemonHtml}${featureHtml}`;
+        results.hidden = false;
+    }
+
+    async function search(query) {
+        const normalized = query.trim();
+        if (normalized.length < 2) {
+            results.hidden = true;
+            results.innerHTML = "";
+            return;
+        }
+        results.innerHTML = `<div class="global-search-loading">Đang tìm dữ liệu...</div>`;
+        results.hidden = false;
+        showResults(normalized, await loadPokemonNames());
+    }
+
+    function submitSearch() {
+        const query = input.value.trim();
+        if (query) window.location.href = `PokemonDatabase.html?search=${encodeURIComponent(query)}`;
+    }
+
+    input.addEventListener("input", () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => search(input.value), 220);
+    });
+    input.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            submitSearch();
+        }
+        if (event.key === "Escape") results.hidden = true;
+    });
+    button.addEventListener("click", event => {
+        event.stopImmediatePropagation();
+        submitSearch();
+    });
+    document.addEventListener("click", event => {
+        if (!searchWrap.contains(event.target)) results.hidden = true;
+    });
+}
+
 const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY) || "vi";
+setupVerticalMenu();
+setupGlobalSearch();
 applyLanguage(savedLanguage);
 
 document.querySelectorAll("[data-language-toggle]").forEach(button => {

@@ -6,6 +6,7 @@
 
 const POKE_API_BASE = "https://pokeapi.co/api/v2/pokemon";
 const BATTLE_API_BASE = "https://championsbattledata.com/api";
+const CHAT_HISTORY_KEY = "pokemon-chat-history-v1";
 
 const chatMessages = document.getElementById("chat-messages");
 const chatSuggestions = document.getElementById("chat-suggestions");
@@ -115,6 +116,28 @@ function hasStandaloneWord(norm, word) {
 // GIAO DIỆN CHAT
 // ========================================
 
+function saveChatHistory() {
+    const entries = [];
+    chatMessages.querySelectorAll(".chat-bubble").forEach(bubble => {
+        const sender = bubble.classList.contains("user") ? "user" : "bot";
+        const text = bubble.textContent || bubble.innerText || "";
+        if (text.trim()) entries.push({ sender, text: text.trim() });
+    });
+    localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(entries.slice(-40)));
+}
+
+function loadChatHistory() {
+    try {
+        const raw = localStorage.getItem(CHAT_HISTORY_KEY);
+        if (!raw) return;
+        const entries = JSON.parse(raw);
+        if (!Array.isArray(entries)) return;
+        entries.forEach(entry => addMessage(escapeHtml(entry.text), entry.sender === "user" ? "user" : "bot"));
+    } catch {
+        localStorage.removeItem(CHAT_HISTORY_KEY);
+    }
+}
+
 function addMessage(html, sender = "bot") {
     const bubble = document.createElement("div");
     bubble.className = `chat-bubble ${sender}`;
@@ -123,6 +146,7 @@ function addMessage(html, sender = "bot") {
         : html;
     chatMessages.appendChild(bubble);
     chatMessages.scrollTop = chatMessages.scrollHeight;
+    saveChatHistory();
     return bubble;
 }
 
@@ -237,8 +261,26 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
+function contextualSuggestions(rawText) {
+    const currentPage = window.location.pathname.toLowerCase();
+    const suggestions = [];
+
+    if (currentPage.includes("types")) suggestions.push("Hệ rồng khắc gì?", "Hệ cỏ yếu với gì?");
+    if (currentPage.includes("meta")) suggestions.push("Top meta hiện tại?", "Meta doubles hot nhất?");
+    if (currentPage.includes("team")) suggestions.push("Gợi ý team counter?", "Core team mạnh nhất?");
+    if (currentPage.includes("damage")) suggestions.push("Tính damage góc nhìn?", "Move nào mạnh nhất?");
+    if (!suggestions.length) suggestions.push("Basculegion build?", "Garchomp meta?", "Hệ rồng khắc gì?");
+
+    const text = rawText || "";
+    const tokens = text.toLowerCase().split(/\s+/).filter(Boolean);
+    const query = tokens[tokens.length - 1] || "";
+    if (query.length > 2) suggestions.unshift(`Xem thêm về ${capitalizeWords(query)}`);
+    renderSuggestions(suggestions.slice(0, 4));
+}
+
 async function handleUserMessage(rawText) {
     const norm = normalizeMsg(rawText);
+    contextualSuggestions(rawText);
 
     // 1. Chào hỏi
     if (/^(chao|hi|hello|xin chao|alo|hey)\b/.test(norm)) {

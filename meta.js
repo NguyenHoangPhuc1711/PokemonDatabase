@@ -592,7 +592,7 @@ async function getChampionsResourceName(resource, id) {
 async function getChampionsUsageGroup(resource, entries) {
     const results = await Promise.all((entries || []).map(async entry => {
         try {
-            return { name: await getChampionsResourceName(resource, entry.id), pct: Math.round(Number(entry.usage || 0) * 1000) / 10 };
+            return { id: entry.id, name: await getChampionsResourceName(resource, entry.id), pct: Math.round(Number(entry.usage || 0) * 1000) / 10 };
         } catch {
             return null;
         }
@@ -613,6 +613,61 @@ async function fetchChampionsSpeciesData(dexId, formatKey) {
         getChampionsUsageGroup("pokemon", competitive.teammates)
     ]);
     return { data: { moves, items, abilities, teammates, natureSpread: null }, formatFile: "Pokemon Champions Ranked Battle Data" };
+}
+
+async function loadMegaVariants(pokeData) {
+    try {
+        const speciesResponse = await fetch(`${POKE_API_ROOT}/pokemon-species/${pokeData.id}`);
+        if (!speciesResponse.ok) return [];
+        const species = await speciesResponse.json();
+        const megaVariants = species.varieties
+            .map(entry => entry.pokemon)
+            .filter(pokemon => pokemon.name.includes("-mega"));
+
+        return (await Promise.all(megaVariants.map(async variant => {
+            const name = variant.name;
+            const response = await fetch(variant.url);
+            if (!response.ok) return null;
+            const mega = await response.json();
+            const suffix = name.split("-mega")[1] || "";
+            const baseName = pokeData.name.replace(/-female$|-male$/, "");
+            const stoneBase = baseName.endsWith("e") ? baseName.slice(0, -1) : baseName;
+            const specialStones = {
+                golisopod: "golisopite"
+            };
+            const stoneCandidates = [
+                ...(specialStones[baseName] ? [specialStones[baseName]] : []),
+                `${stoneBase}ite${suffix}`,
+                `${baseName}ite${suffix}`,
+                `${stoneBase}ite`,
+                `${baseName}ite`
+            ];
+            let stone = null;
+            for (const candidate of stoneCandidates) {
+                const stoneResponse = await fetch(`${POKE_API_ROOT}/item/${candidate}`).catch(() => null);
+                if (stoneResponse?.ok) {
+                    const item = await stoneResponse.json();
+                    stone = capitalizeWords(item.name.replace(/-/g, " "));
+                    break;
+                }
+            }
+            return { data: mega, stone };
+        }))).filter(Boolean);
+    } catch {
+        return [];
+    }
+}
+
+function formatMegaFormName(name) {
+    return capitalizeWords(name.replace(/-/g, " "));
+}
+
+function formatMegaButtonLabel(name) {
+    const suffix = name.split("-mega")[1] || "";
+    if (suffix === "-z") return "MegaEvoZ";
+    if (suffix === "-x") return "MegaEvoX";
+    if (suffix === "-y") return "MegaEvoY";
+    return "MegaEvo";
 }
 
 
@@ -672,7 +727,8 @@ async function loadPokemonMeta(rawId, pokeApiIdRaw, championsDexId) {
         }
 
         if (requestId !== detailRequestId) return;
-        renderPokemonMeta(result.data, pokeData, result.usedName && result.usedName !== displayNameForSmogon ? result.usedName : null, result.formatFile);
+        const megaVariants = await loadMegaVariants(pokeData);
+        renderPokemonMeta(result.data, pokeData, result.usedName && result.usedName !== displayNameForSmogon ? result.usedName : null, result.formatFile, megaVariants);
 
     } catch (error) {
 
@@ -729,7 +785,23 @@ function renderBaseStatsSection(stats) {
     return `<div class="meta-section"><h4 class="card-title">BASE STATS</h4><div class="usage-list">${stats.map(stat => `<div class="usage-row"><span class="usage-name">${stat.name}</span><span class="usage-bar-bg"><span class="usage-bar" style="width:${Math.min(stat.value / 2, 100)}%;"></span></span><span class="usage-pct">${stat.value}</span></div>`).join("")}</div></div>`;
 }
 
-function renderPokemonMeta(smogonData, pokeData, switchedToName, formatFile) {
+function renderMetaTrendChart(usageData) {
+    if (!usageData || !usageData.length) return "";
+    const max = Math.max(...usageData.map(item => item.pct || 0));
+    const bars = usageData.slice(0, 6).map((item, index) => {
+        const height = Math.max(18, (item.pct / max) * 100);
+        return `
+            <div class="trend-bar-wrap">
+                <span class="trend-value">${item.pct}%</span>
+                <div class="trend-bar" style="height:${height}%"></div>
+                <span class="trend-label">${index + 1}</span>
+            </div>
+        `;
+    }).join("");
+    return `<div class="meta-trend"><h3>Usage trend</h3><div class="trend-chart">${bars}</div></div>`;
+}
+
+function renderPokemonMeta(smogonData, pokeData, switchedToName, formatFile, megaVariants = []) {
 
     const displayName = pokeData?.name ? capitalizeWords(pokeData.name.replace(/-/g, " ")) : "—";
 
@@ -748,32 +820,163 @@ function renderPokemonMeta(smogonData, pokeData, switchedToName, formatFile) {
         `
         : "";
 
-    let html = `
-        ${noteHtml}
-        <div class="meta-detail-header">
-            <div class="meta-sprite-wrap">
-                ${spriteUrl
-                    ? `<img class="meta-sprite" src="${spriteUrl}" alt="${displayName}">`
-                    : `<div class="meta-sprite meta-sprite-fallback">●</div>`
-                }
-            </div>
-            <div class="meta-detail-info">
-                <h3>${displayName}</h3>
-                <div class="meta-detail-types">
-                    ${types.map(t => `<span class="type ${t}">${t.toUpperCase()}</span>`).join("")}
-                </div>
-                <p class="meta-detail-format">Chế độ: <strong>${currentFormat}</strong>${formatFile ? ` · <span class="meta-format-file">${formatFile.replace(".json", "")}</span>` : ""}</p>
-            </div>
+    const usageAbilities = smogonData.abilities || [];
+    const abilityItems = usageAbilities.length
+        ? usageAbilities
+        : (pokeData?.abilities || []).map(entry => ({
+            name: capitalizeWords(entry.ability.name.replace(/-/g, " ")),
+            pct: usageAbilities.length === 0 && (pokeData?.abilities || []).length === 1 ? 100 : null,
+            verifiedOnly: true
+        }));
+    const abilityHasUsage = usageAbilities.length > 0;
+    const itemItems = smogonData.items || [];
+    const moveItems = smogonData.moves || [];
+    const teammateItems = smogonData.teammates || [];
+    const renderCardUsage = (items, limit = 5, showPokemonImage = false) => items.slice(0, limit).map((item, index) => `
+        <div class="info-usage-row">
+            <span class="info-usage-rank">${String(index + 1).padStart(2, "0")}</span>
+            <span class="info-usage-name${showPokemonImage ? " info-usage-name-with-image" : ""}">
+                ${showPokemonImage && item.id ? `<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${item.id}.png" alt="${capitalizeWords(item.name)}" loading="lazy">` : ""}
+                ${capitalizeWords(item.name)}
+            </span>
+            <span class="info-usage-bar"><i style="width:${item.pct == null ? 0 : Math.min(item.pct, 100)}%"></i></span>
+            <strong class="info-usage-pct">${item.pct == null ? "Verified" : `${item.pct}%`}</strong>
         </div>
+    `).join("");
+
+    const normalAbilityHtml = renderCardUsage(abilityItems, abilityItems.length) || `<p class="info-empty">Chưa có dữ liệu ability.</p>`;
+    const normalItemHtml = renderCardUsage(itemItems, 5) || `<p class="info-empty">Chưa có dữ liệu item.</p>`;
+
+    detailPanel.innerHTML = `
+        ${noteHtml}
+        <article class="pokemon-info-card">
+            <div class="pokemon-info-card-topline">
+                <span>POKÉMON INFO // ${currentFormat.toUpperCase()}</span>
+                <span>${formatFile ? formatFile.replace(".json", "") : "RANKED BATTLE DATA"}</span>
+                <button class="pokemon-info-save" id="pokemon-info-save" type="button" data-html2canvas-ignore="true">↓ Lưu ảnh</button>
+            </div>
+            <div class="pokemon-info-layout">
+                <section class="pokemon-info-identity">
+                    <div class="pokemon-info-profile">
+                        <div class="pokemon-info-art-wrap">
+                            ${spriteUrl
+                                ? `<img id="pokemon-info-art" class="pokemon-info-art" src="${spriteUrl}" alt="${displayName}" crossorigin="anonymous">`
+                                : `<div class="pokemon-info-art pokemon-info-art-fallback">●</div>`}
+                        </div>
+                        <div class="pokemon-info-name-block">
+                            ${megaVariants.length ? `<div class="pokemon-form-toggle" role="group" aria-label="Chọn form Pokémon">
+                                <button class="pokemon-form-btn active" data-form-mode="normal" type="button">Nor</button>
+                                ${megaVariants.map((variant, index) => `<button class="pokemon-form-btn" data-form-mode="mega-${index}" type="button">${formatMegaButtonLabel(variant.data.name)}</button>`).join("")}
+                            </div>` : ""}
+                            <h3 id="pokemon-info-name">${displayName}</h3>
+                            <p id="pokemon-info-id">#${String(pokeData?.id || "?").padStart(3, "0")}</p>
+                        </div>
+                    </div>
+                    <div id="pokemon-info-types" class="pokemon-info-types">
+                        ${types.map(t => `<span class="type ${t}">${t.toUpperCase()}</span>`).join("")}
+                    </div>
+                    <div class="pokemon-info-ability-box">
+                        <div id="pokemon-info-ability-title" class="pokemon-info-section-title"><span>ABILITY ${abilityHasUsage ? "PHỔ BIẾN" : "CỦA POKÉMON"}</span><b>${abilityHasUsage ? "USAGE" : "POKÉAPI VERIFIED"}</b></div>
+                        <div id="pokemon-info-abilities" class="info-usage-list">
+                            ${normalAbilityHtml}
+                        </div>
+                    </div>
+                    <div class="pokemon-info-ability-box pokemon-info-item-box">
+                        <div class="pokemon-info-section-title"><span>ITEM PHỔ BIẾN</span><b>TOP ITEMS</b></div>
+                        <div id="pokemon-info-items" class="info-usage-list">
+                            ${normalItemHtml}
+                        </div>
+                    </div>
+                </section>
+                <section class="pokemon-info-competitive">
+                    <div class="pokemon-info-moves-box">
+                        <div class="pokemon-info-section-title"><span>CHIÊU THỨC PHỔ BIẾN</span><b>TOP MOVES</b></div>
+                        <div class="info-usage-list info-move-list">
+                            ${renderCardUsage(moveItems, 7) || `<p class="info-empty">Chưa có dữ liệu move.</p>`}
+                        </div>
+                    </div>
+                    <div class="pokemon-info-teammates-box">
+                        <div class="pokemon-info-section-title"><span>ĐỒNG ĐỘI PHỔ BIẾN</span><b>TEAM SYNERGY</b></div>
+                        <div class="info-usage-list">
+                            ${renderCardUsage(teammateItems, 7, true) || `<p class="info-empty">Chưa có dữ liệu đồng đội.</p>`}
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </article>
     `;
 
-    html += renderPikaUsageSection("move", smogonData.moves);
-    html += renderPikaUsageSection("item", smogonData.items);
-    html += renderPikaUsageSection("teammate", smogonData.teammates);
-    html += renderPikaUsageSection("ability", smogonData.abilities);
-    html += renderNatureSpreadSection(smogonData.natureSpread);
+    detailPanel.querySelectorAll(".pokemon-form-btn").forEach(button => {
+        button.addEventListener("click", () => {
+            const isMega = button.dataset.formMode.startsWith("mega-");
+            const variant = isMega ? megaVariants[Number(button.dataset.formMode.split("-")[1])] : null;
+            const data = variant?.data || pokeData;
+            const name = isMega ? formatMegaFormName(data.name) : capitalizeWords(data.name.replace(/-/g, " "));
+            const dataTypes = data.types?.map(type => type.type.name) || [];
+            const officialAbilities = (data.abilities || []).map(entry => ({
+                name: capitalizeWords(entry.ability.name.replace(/-/g, " ")),
+                pct: (data.abilities || []).length === 1 ? 100 : null
+            }));
+            const abilityHtml = isMega
+                ? renderCardUsage(officialAbilities, officialAbilities.length)
+                : normalAbilityHtml;
+            const itemHtml = isMega
+                ? renderCardUsage([{ name: variant.stone || "Mega Stone chưa xác thực", pct: variant.stone ? 100 : null }], 1)
+                : normalItemHtml;
 
-    detailPanel.innerHTML = html;
+            detailPanel.querySelector("#pokemon-info-art")?.setAttribute("src", data.sprites?.other?.["official-artwork"]?.front_default || data.sprites?.front_default || "");
+            detailPanel.querySelector("#pokemon-info-art")?.setAttribute("alt", name);
+            detailPanel.querySelector("#pokemon-info-name").textContent = name;
+            detailPanel.querySelector("#pokemon-info-id").textContent = `#${String(data.id).padStart(3, "0")}`;
+            detailPanel.querySelector("#pokemon-info-types").innerHTML = dataTypes.map(type => `<span class="type ${type}">${type.toUpperCase()}</span>`).join("");
+            detailPanel.querySelector("#pokemon-info-abilities").innerHTML = abilityHtml || `<p class="info-empty">Chưa có dữ liệu ability.</p>`;
+            detailPanel.querySelector("#pokemon-info-items").innerHTML = itemHtml || `<p class="info-empty">Chưa có dữ liệu item.</p>`;
+            detailPanel.querySelector("#pokemon-info-ability-title").innerHTML = isMega
+                ? "<span>ABILITY MEGAEVO</span><b>POKÉAPI VERIFIED</b>"
+                : `<span>ABILITY ${abilityHasUsage ? "PHỔ BIẾN" : "CỦA POKÉMON"}</span><b>${abilityHasUsage ? "USAGE" : "POKÉAPI VERIFIED"}</b>`;
+            detailPanel.querySelectorAll(".pokemon-form-btn").forEach(item => item.classList.toggle("active", item === button));
+        });
+    });
+
+    detailPanel.querySelector("#pokemon-info-save")?.addEventListener("click", () => {
+        savePokemonInfoCard(detailPanel.querySelector(".pokemon-info-card"), displayName);
+    });
+}
+
+async function savePokemonInfoCard(card, displayName) {
+    const button = card?.querySelector("#pokemon-info-save");
+    if (!card || !button) return;
+    button.disabled = true;
+    button.textContent = "Đang tạo ảnh...";
+
+    try {
+        if (!window.html2canvas) {
+            await new Promise((resolve, reject) => {
+                const script = document.createElement("script");
+                script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+
+        const canvas = await window.html2canvas(card, {
+            backgroundColor: "#11161f",
+            scale: Math.min(window.devicePixelRatio || 1, 2),
+            useCORS: true,
+            logging: false
+        });
+        const link = document.createElement("a");
+        link.download = `${displayName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-meta-card.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    } catch (error) {
+        console.error("Không thể lưu Meta card:", error);
+        alert("Không thể tạo ảnh lúc này. Hãy thử lại sau khi ảnh Pokémon đã tải xong.");
+    } finally {
+        button.disabled = false;
+        button.textContent = "↓ Lưu ảnh";
+    }
 }
 
 function renderPikaUsageSection(category, items) {

@@ -27,6 +27,31 @@
        <priority>0.6400</priority>
   </url>
   <url>
+       <loc>https://pokemonif.com/Moves</loc>
+       <changefreq>weekly</changefreq>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://pokemonif.com/Abilities</loc>
+       <changefreq>weekly</changefreq>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://pokemonif.com/Breeding</loc>
+       <changefreq>weekly</changefreq>
+       <priority>0.6000</priority>
+  </url>
+  <url>
+       <loc>https://pokemonif.com/EVIV</loc>
+       <changefreq>monthly</changefreq>
+       <priority>0.6000</priority>
+  </url>
+  <url>
+       <loc>https://pokemonif.com/Compare</loc>
+       <changefreq>monthly</changefreq>
+       <priority>0.6000</priority>
+  </url>
+  <url>
        <loc>https://pokemonif.com/Chatbot</loc>
        <lastmod>2026-08-27T15:41:00+00:00</lastmod>
        <changefreq>daily</changefreq>
@@ -37,6 +62,11 @@
        <lastmod>2026-08-27T15:41:00+00:00</lastmod>
        <changefreq>daily</changefreq>
        <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://pokemonif.com/TrainerCard</loc>
+       <changefreq>monthly</changefreq>
+       <priority>0.6000</priority>
   </url>
   <url>
        <loc>https://pokemonif.com/DamageCalc</loc>

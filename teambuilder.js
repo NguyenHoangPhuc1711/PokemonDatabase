@@ -4,7 +4,7 @@
 // ========================================
 
 const POKE_API_BASE = "https://pokeapi.co/api/v2/pokemon";
-const MAX_TEAM_SIZE = 6;
+const MAX_TEAM_SIZE = 5;
 
 let team = [];
 let pokemonNameList = null;
@@ -18,6 +18,35 @@ const tbTeamGrid = document.getElementById("tb-team-grid");
 const tbTeamCount = document.getElementById("tb-team-count");
 const tbAnalysis = document.getElementById("tb-analysis");
 const tbClearBtn = document.getElementById("tb-clear-btn");
+
+function exportTeamShowdown(teamMembers) {
+    return teamMembers.map(pokemon => {
+        const name = pokemon.name.replace(/\s+/g, "-");
+        return `${name} @ ${pokemon.item || ""}\nAbility: ${pokemon.abilities?.[0] || "Unknown"}\nEVs: 252 HP / 252 Atk / 4 Def\n${pokemon.nature || "Jolly"} Nature\n- ${pokemon.moves?.[0] || "Tackle"}\n- ${pokemon.moves?.[1] || "Protect"}\n- ${pokemon.moves?.[2] || "Earthquake"}\n- ${pokemon.moves?.[3] || "Shadow Claw"}`;
+    }).join("\n\n");
+}
+
+function renderTeamExport() {
+    if (!team.length) {
+        tbAnalysis.innerHTML = `<p class="meta-detail-placeholder">👆 Add at least 1 Pokémon to start analyzing the team.</p>`;
+        return;
+    }
+
+    const exportText = exportTeamShowdown(team.map(pokemon => ({
+        ...pokemon,
+        item: "",
+        nature: "Jolly",
+        moves: pokemon.moves.slice(0, 4).map(move => move.name)
+    })));
+
+    tbAnalysis.innerHTML += `
+        <div class="tb-export-box">
+            <h4>Showdown export</h4>
+            <textarea readonly class="tb-export-text">${exportText}</textarea>
+            <button class="filter-btn" type="button" onclick="navigator.clipboard.writeText(this.parentElement.querySelector('.tb-export-text').value)">Copy</button>
+        </div>
+    `;
+}
 
 
 // ========================================
@@ -354,7 +383,7 @@ async function renderAnalysis() {
                 <p class="section-label">TEAM CHECK</p>
                 <h3 class="tb-analysis-title">Tóm tắt đội hình</h3>
             </div>
-            <span class="tb-analysis-count">${team.length}/6 Pokémon</span>
+            <span class="tb-analysis-count">${team.length}/${MAX_TEAM_SIZE} Pokémon</span>
         </div>
         <div class="tb-summary-grid">
             ${renderAnalysisSection("✓ Kháng / yếu hệ", "tb-summary-positive", [strengthHtml], "Chưa có lợi thế phòng thủ rõ ràng.")}
@@ -365,6 +394,7 @@ async function renderAnalysis() {
             ${renderAnalysisSection("⚠ Anti-synergy", "tb-summary-negative", antiSynergyItems, "Chưa phát hiện xung đột rõ ràng.")}
         </div>
     `;
+    renderTeamExport();
 }
 
 function capitalizeWords(str) {

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV/IV Calculator | PokemonInformation</title>
+    <link rel="stylesheet" href="style.css?v=20260916-2">
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo">
+            <span class="pokeball">●</span>
+            PokemonInformation
+            <button class="language-toggle" type="button" data-language-toggle>EN</button>
+        </div>
+
+        <nav>
+            <a href="index.html">📚 Pokédex</a>
+            <a href="PokemonDatabase.html">PokemonDatabase</a>
+            <a href="Types.html">Types</a>
+            <a href="Meta.html">Meta</a>
+            <a href="Moves.html">Moves</a>
+            <a href="Abilities.html">Abilities</a>
+            <a href="Breeding.html">Breeding</a>
+            <a href="EVIV.html" class="nav-active">EV/IV</a>
+            <a href="Chatbot.html">Chatbot</a>
+            <a href="TeamBuilder.html">Team Builder</a>
+            <a href="TrainerCard.html">Trainer Card</a>
+            <a href="DamageCalc.html">Calculate</a>
+        </nav>
+
+        <div class="header-search">
+            <span>🔍</span>
+            <input id="header-search-input" type="text" placeholder="Tìm Pokémon..." autocomplete="off">
+            <button id="header-search-button">Tìm</button>
+        </div>
+    </header>
+
+    <section class="hero meta-hero">
+        <div class="hero-content">
+            <p class="small-title">EV / IV CALCULATOR</p>
+            <h1>BUILD <span>OPTIMIZER</span></h1>
+            <p class="description">Tính stat mục tiêu theo level, base stat, IV, EV và nature để tối ưu hóa đối với meta hiện tại.</p>
+        </div>
+    </section>
+
+    <main class="container database-page">
+        <div class="database-card calc-card">
+            <div class="eviv-grid">
+                <div class="database-field">
+                    <label for="eviv-base">Base stat</label>
+                    <input id="eviv-base" class="database-input" type="number" value="95" min="1" max="255">
+                </div>
+                <div class="database-field">
+                    <label for="eviv-iv">IV</label>
+                    <input id="eviv-iv" class="database-input" type="number" value="31" min="0" max="31">
+                </div>
+                <div class="database-field">
+                    <label for="eviv-ev">EV</label>
+                    <input id="eviv-ev" class="database-input" type="number" value="252" min="0" max="252">
+                </div>
+                <div class="database-field">
+                    <label for="eviv-level">Level</label>
+                    <input id="eviv-level" class="database-input" type="number" value="50" min="1" max="100">
+                </div>
+                <div class="database-field">
+                    <label for="eviv-nature">Nature</label>
+                    <select id="eviv-nature" class="database-select">
+                        <option value="1">Bình thường</option>
+                        <option value="1.1">Ưu tiên tăng</option>
+                        <option value="0.9">Ưu tiên giảm</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="calc-result" id="eviv-result"></div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 Pokédex Database</p>
+    </footer>
+
+    <script src="ads.js"></script>
+    <script src="seo.js"></script>
+    <script src="language.js"></script>
+    <script src="eviv.js"></script>
+</body>
+
+</html>

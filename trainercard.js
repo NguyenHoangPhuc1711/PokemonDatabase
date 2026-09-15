@@ -114,6 +114,7 @@ let cardFormat = "portrait";   // "portrait" (Story 9:16) | "landscape" (Trainer
 let pokemonNameList = null;
 let pokemonNameListPromise = null;
 const pokemonDataCache = new Map();
+const TRAINER_CARD_STORAGE_KEY = "pokemon-trainer-cards-v1";
 
 
 // ========================================
@@ -2241,6 +2242,7 @@ generateBtn.addEventListener("click", async () => {
     try {
         await renderCard();
         downloadBtn.classList.add("ready");
+        saveTrainerCardToStorage();
 
         if (window.innerWidth >= 768) {
             // Desktop: cuộn preview vào giữa màn hình, không chuyển giao diện
@@ -2258,6 +2260,76 @@ generateBtn.addEventListener("click", async () => {
 });
 
 downloadBtn.addEventListener("click", handleDownload);
+
+const shareBtn = document.createElement("button");
+shareBtn.type = "button";
+shareBtn.textContent = "🔗 Chia sẻ link";
+shareBtn.className = "tc-generate-btn";
+shareBtn.style.marginTop = "10px";
+shareBtn.addEventListener("click", shareCardLink);
+downloadBtn.parentNode.appendChild(shareBtn);
+
+const savedCardList = document.createElement("div");
+savedCardList.id = "saved-card-list";
+savedCardList.className = "saved-card-list";
+shareBtn.parentNode.appendChild(savedCardList);
+renderSavedCards();
+
+function saveTrainerCardToStorage() {
+    const saved = JSON.parse(localStorage.getItem(TRAINER_CARD_STORAGE_KEY) || "[]");
+    const entry = {
+        id: Date.now(),
+        name: nameInput.value.trim() || "Trainer",
+        tag: tagInput.value.trim() || "Elite Trainer",
+        hero: heroPokemon ? heroPokemon.name : "",
+        timestamp: new Date().toISOString()
+    };
+    const next = [entry, ...saved].slice(0, 6);
+    localStorage.setItem(TRAINER_CARD_STORAGE_KEY, JSON.stringify(next));
+    renderSavedCards();
+}
+
+function renderSavedCards() {
+    const savedList = document.getElementById("saved-card-list");
+    if (!savedList) return;
+    const saved = JSON.parse(localStorage.getItem(TRAINER_CARD_STORAGE_KEY) || "[]");
+    if (!saved.length) {
+        savedList.innerHTML = "<div class=\"empty-data\">Chưa có thẻ nào được lưu.</div>";
+        return;
+    }
+    savedList.innerHTML = saved.map(card => `
+        <div class="saved-card-item">
+            <span>${card.name} · ${card.tag}</span>
+            <button type="button" data-card-id="${card.id}">Mở</button>
+        </div>
+    `).join("");
+
+    savedList.querySelectorAll("button").forEach(button => {
+        button.addEventListener("click", () => {
+            const savedCards = JSON.parse(localStorage.getItem(TRAINER_CARD_STORAGE_KEY) || "[]");
+            const target = savedCards.find(item => String(item.id) === button.dataset.cardId);
+            if (target) {
+                nameInput.value = target.name;
+                tagInput.value = target.tag;
+                if (target.hero) setHeroPokemon(target.hero);
+            }
+        });
+    });
+}
+
+function shareCardLink() {
+    const payload = {
+        name: nameInput.value.trim() || "Trainer",
+        tag: tagInput.value.trim() || "Elite Trainer",
+        hero: heroPokemon ? heroPokemon.name : "",
+        accent: frameStyle,
+        timestamp: Date.now()
+    };
+    const encoded = encodeURIComponent(JSON.stringify(payload));
+    const base = `${window.location.origin}${window.location.pathname}?card=${encoded}`;
+    navigator.clipboard.writeText(base).catch(() => {});
+    alert("Link thẻ đã được sao chép vào clipboard.");
+}
 
 function handleDownload() {
     const trainerName = nameInput.value.trim() || "trainer";

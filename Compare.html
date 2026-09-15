@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare Pokémon | PokemonInformation</title>
+    <link rel="stylesheet" href="style.css?v=20260916-2">
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo">
+            <span class="pokeball">●</span>
+            PokemonInformation
+            <button class="language-toggle" type="button" data-language-toggle>EN</button>
+        </div>
+
+        <nav>
+            <a href="index.html">📚 Pokédex</a>
+            <a href="PokemonDatabase.html" class="nav-active">PokemonDatabase</a>
+            <a href="Types.html">Types</a>
+            <a href="Meta.html">Meta</a>
+            <a href="Moves.html">Moves</a>
+            <a href="Abilities.html">Abilities</a>
+            <a href="Breeding.html">Breeding</a>
+            <a href="EVIV.html">EV/IV</a>
+            <a href="Chatbot.html">Chatbot</a>
+            <a href="TeamBuilder.html">Team Builder</a>
+            <a href="TrainerCard.html">Trainer Card</a>
+            <a href="DamageCalc.html">Calculate</a>
+        </nav>
+
+        <div class="header-search">
+            <span>🔍</span>
+            <input id="header-search-input" type="text" placeholder="Tìm Pokémon..." autocomplete="off">
+            <button id="header-search-button">Tìm</button>
+        </div>
+    </header>
+
+    <section class="hero meta-hero">
+        <div class="hero-content">
+            <p class="small-title">SIDE-BY-SIDE COMPARISON</p>
+            <h1>COMPARE <span>POKÉMON</span></h1>
+            <p class="description">So sánh nhanh 2 Pokémon về stats, hệ, moves và điểm mạnh điểm yếu.</p>
+        </div>
+    </section>
+
+    <main class="container database-page">
+        <div class="compare-panel">
+            <div class="database-field">
+                <label for="compare-one">Pokémon 1</label>
+                <input id="compare-one" class="database-input" type="text" placeholder="pikachu" autocomplete="off">
+            </div>
+            <div class="database-field">
+                <label for="compare-two">Pokémon 2</label>
+                <input id="compare-two" class="database-input" type="text" placeholder="charizard" autocomplete="off">
+            </div>
+            <button id="compare-button" class="tc-generate-btn" type="button">So sánh</button>
+        </div>
+
+        <div id="compare-output" class="compare-output"></div>
+    </main>
+
+    <footer>
+        <p>© 2026 Pokédex Database</p>
+    </footer>
+
+    <script src="ads.js"></script>
+    <script src="seo.js"></script>
+    <script src="language.js"></script>
+    <script src="compare.js"></script>
+</body>
+
+</html>

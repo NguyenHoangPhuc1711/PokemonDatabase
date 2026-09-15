@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Move Database | PokemonInformation</title>
+    <link rel="stylesheet" href="style.css?v=20260916-2">
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo">
+            <span class="pokeball">●</span>
+            PokemonInformation
+            <button class="language-toggle" type="button" data-language-toggle>EN</button>
+        </div>
+
+        <nav>
+            <a href="index.html">📚 Pokédex</a>
+            <a href="PokemonDatabase.html">PokemonDatabase</a>
+            <a href="Types.html">Types</a>
+            <a href="Meta.html">Meta</a>
+            <a href="Moves.html" class="nav-active">Moves</a>
+            <a href="Abilities.html">Abilities</a>
+            <a href="Breeding.html">Breeding</a>
+            <a href="EVIV.html">EV/IV</a>
+            <a href="Chatbot.html">Chatbot</a>
+            <a href="TeamBuilder.html">Team Builder</a>
+            <a href="TrainerCard.html">Trainer Card</a>
+            <a href="DamageCalc.html">Calculate</a>
+        </nav>
+
+        <div class="header-search">
+            <span>🔍</span>
+            <input id="header-search-input" type="text" placeholder="Tìm Pokémon..." autocomplete="off">
+            <button id="header-search-button">Tìm</button>
+        </div>
+    </header>
+
+    <section class="hero meta-hero">
+        <div class="hero-content">
+            <p class="small-title">MOVE DATABASE</p>
+            <h1>MOVE <span>DEX</span></h1>
+            <p class="description">Tra cứu chiêu thức theo hệ, power, accuracy, PP, hiệu ứng và Pokémon có thể học được.</p>
+        </div>
+    </section>
+
+    <main class="container database-page">
+        <div class="database-toolbar">
+            <div class="database-field move-search-field">
+                <label for="move-search-input">Tìm chiêu thức</label>
+                <input id="move-search-input" class="database-input" type="search" placeholder="Ví dụ: Ice Shard, Earthquake..." autocomplete="off">
+            </div>
+            <div class="database-field">
+                <label for="move-type-filter">Lọc theo hệ</label>
+                <select id="move-type-filter" class="database-select">
+                    <option value="all">Tất cả</option>
+                </select>
+            </div>
+            <div class="database-field">
+                <label for="move-pokemon-filter">Pokémon học được</label>
+                <select id="move-pokemon-filter" class="database-select">
+                    <option value="all">Tất cả</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="move-results-heading">
+            <div>
+                <p class="small-title">MOVE RESULTS</p>
+                <h2>Chiêu thức</h2>
+            </div>
+            <span id="move-results-count" class="move-results-count"></span>
+        </div>
+
+        <div id="moves-list" class="moves-list"></div>
+        <div id="moves-empty" class="database-card empty-data" hidden>Không có chiêu thức phù hợp.</div>
+
+        <div class="database-card moves-legacy-table" hidden>
+            <div class="table-wrap">
+                <table class="database-table">
+                    <tbody id="moves-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 Pokédex Database</p>
+    </footer>
+
+    <script src="ads.js"></script>
+    <script src="seo.js"></script>
+    <script src="language.js"></script>
+    <script src="move-database.js"></script>
+</body>
+
+</html>
