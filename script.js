@@ -87,7 +87,7 @@ async function loadPokemonNames() {
             allPokemon = JSON.parse(cachedNames).map(pokemon => ({
                 ...pokemon,
                 id: pokemon.id || pokemon.url?.split("/").filter(Boolean).pop(),
-                url: pokemon.url || `${POKE_API_BASE}/${pokemon.id}`
+                url: pokemon.url || ""
             }));
             return;
         } catch {
@@ -97,13 +97,9 @@ async function loadPokemonNames() {
 
     try {
 
-        const response = await fetch(
-            "https://pokeapi.co/api/v2/pokemon?limit=2000"
-        );
+        const data = await PokemonApi.listPokemon();
 
-        const data = await response.json();
-
-        allPokemon = data.results.map(pokemon => ({
+        allPokemon = data.map(pokemon => ({
             ...pokemon,
             id: pokemon.url.split("/").filter(Boolean).pop()
         }));
@@ -132,25 +128,7 @@ async function loadPokemonNames() {
 
 async function getPokemon(id) {
 
-    const response = await fetch(
-        `https://pokeapi.co/api/v2/pokemon/${id}`
-    );
-
-
-    if (!response.ok) {
-
-        throw new Error(
-            "Không tìm thấy Pokémon"
-        );
-
-    }
-
-
-    const data =
-        await response.json();
-
-
-    return data;
+    return PokemonApi.getPokemon(id);
 }
 
 
@@ -225,7 +203,7 @@ function createPokemonCard(pokemon) {
 
 
         <h3>
-            <a class="pokemon-card-seo-link" href="pokemon/${encodeURIComponent(pokemon.name)}/">
+            <a class="pokemon-card-seo-link" href="PokemonDatabase.html?pokemon=${encodeURIComponent(pokemon.name)}">
                 ${name}
             </a>
         </h3>
@@ -790,7 +768,20 @@ async function init() {
         loadPokemon()
     ]);
 
-    const initialSearch = new URLSearchParams(window.location.search).get("search");
+    const params = new URLSearchParams(window.location.search);
+    const initialPokemon = params.get("pokemon");
+    const initialSearch = params.get("search");
+
+    if (initialPokemon && modal) {
+        modal.classList.add("active");
+        modal.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+        await loadPokemonDetailData(initialPokemon);
+        return;
+    }
+
     if (initialSearch) {
         searchInput.value = initialSearch;
         await searchPokemon(initialSearch);
@@ -1417,8 +1408,7 @@ async function renderMoveLearnset(moves, requestedVersionGroup = selectedVersion
 
             if (!detail) return null;
 
-            const response = await fetch(moveEntry.move.url);
-            const move = await response.json();
+            const move = await PokemonApi.getMove(moveEntry.move.name);
             let machine = null;
 
             if (detail.move_learn_method.name === "machine") {

@@ -110,9 +110,12 @@ async function loadMetaRankings() {
 async function loadMoveByName(name) {
   const key = name.toLowerCase().trim().replace(/\s+/g, "-");
   if (moveCache.has(key)) return moveCache.get(key);
-  const response = await fetch(`https://pokeapi.co/api/v2/move/${encodeURIComponent(key)}`);
-  if (!response.ok) return null;
-  const detail = await response.json();
+  let detail;
+  try {
+    detail = await PokemonApi.getMove(key);
+  } catch {
+    return null;
+  }
   const move = {
       id: detail.id,
       name: detail.name,

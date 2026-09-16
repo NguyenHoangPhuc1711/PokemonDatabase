@@ -32,7 +32,10 @@ async function loadAbilities() {
       name: detail.name,
       effect: detail.effect_entries?.find(entry => entry.language.name === "en")?.effect || detail.effect_entries?.[0]?.effect || "—",
       shortEffectText: detail.effect_entries?.find(entry => entry.language.name === "en")?.short_effect || detail.effect_entries?.[0]?.short_effect || "—",
-      pokemon: detail.pokemon?.map(item => item.pokemon.name) || []
+      pokemon: detail.pokemon?.map(item => ({
+        name: item.pokemon.name,
+        id: item.pokemon.url.split("/").filter(Boolean).pop()
+      })) || []
     };
   }));
 
@@ -64,7 +67,7 @@ function renderAbilities() {
       </div>
       <div class="ability-pokemon-list">
         <strong>Pokémon sở hữu:</strong>
-        <div class="pokemon-chip-row">${ability.pokemon.slice(0, 8).map(name => `<span class="pokemon-chip">${capitalizeWords(name)}</span>`).join("") || "<span class='muted'>Không rõ</span>"}</div>
+        <div class="pokemon-chip-row">${ability.pokemon.slice(0, 8).map(pokemon => `<a class="pokemon-chip" href="PokemonDatabase.html?pokemon=${encodeURIComponent(pokemon.name)}" title="Xem ${capitalizeWords(pokemon.name)}"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png" alt="" loading="lazy">${capitalizeWords(pokemon.name)}</a>`).join("") || "<span class='muted'>Không rõ</span>"}</div>
       </div>
     </div>
   `).join("");

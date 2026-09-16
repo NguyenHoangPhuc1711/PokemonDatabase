@@ -1,4 +1,6 @@
 (function setupBannerAd() {
+    const smartLink = 'https://pimplehardnesscarnivorous.com/fcb8afbuau?key=2fd4b5ae0e0d6a6b313fc09a2698cba1';
+
     const header = document.querySelector('.header');
     if (!header || document.querySelector('.site-ad-slot')) return;
 
@@ -10,6 +12,7 @@
         <div class="site-ad-native">
             <div id="container-e4ec82b5dd58247e7ac9e2709a67bc75"></div>
         </div>
+        <a class="site-ad-smart-link" href="${smartLink}" target="_blank" rel="noopener noreferrer sponsored">Sponsored link</a>
     `;
     header.insertAdjacentElement('afterend', slot);
 

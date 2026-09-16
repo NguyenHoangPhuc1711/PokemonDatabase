@@ -88,6 +88,11 @@
     setProperty("og:url", canonicalUrl);
     setProperty("og:site_name", "PokemonInformation");
     setProperty("og:image", `${window.location.origin}/hero-pokemon.png`);
+    setProperty("og:image:alt", "PokemonInformation Pokédex");
+    setMeta("twitter:card", "summary_large_image");
+    setMeta("twitter:title", data.title);
+    setMeta("twitter:description", data.description);
+    setMeta("twitter:image", `${window.location.origin}/hero-pokemon.png`);
 
     let canonical = document.querySelector("link[rel=canonical]");
     if (!canonical) {

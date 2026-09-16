@@ -6,6 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Team Builder | PokemonInformation</title>
+    <meta name="description" content="Xây dựng đội Pokémon, phân tích weakness, coverage và xuất team Showdown.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Pokémon Team Builder | PokemonInformation">
+    <meta property="og:description" content="Xây dựng đội Pokémon, phân tích weakness, coverage và xuất team Showdown.">
+    <meta property="og:image" content="https://pokemonif.com/hero-pokemon.png">
+    <meta property="og:site_name" content="PokemonInformation">
+    <meta name="twitter:card" content="summary_large_image">
 
     <link rel="stylesheet" href="style.css?v=20260916-2">
 </head>
@@ -93,6 +100,12 @@
             <button class="filter-btn" id="tb-clear-btn" type="button">🗑 Clear team</button>
         </div>
 
+        <div class="database-toolbar">
+            <input class="database-input" id="tb-team-name" type="text" value="My Team" placeholder="Tên đội hình">
+            <button class="filter-btn" id="tb-save-btn" type="button">💾 Lưu đội hình</button>
+            <span id="tb-save-status" class="meta-detail-placeholder" role="status"></span>
+        </div>
+
         <div class="tb-team-grid" id="tb-team-grid"></div>
 
 
@@ -115,7 +128,7 @@
     <footer>
 
         <p>
-            © 2026 Pokédex Database
+            © 2026 PokemonInformation
         </p>
 
     </footer>
@@ -145,6 +158,8 @@
 
     <script src="ads.js"></script>
     <script src="seo.js"></script>
+    <script src="api-client.js"></script>
+    <script src="auth.js"></script>
     <script src="language.js"></script>
     <script src="typechart-data.js"></script>
     <script src="teambuilder.js"></script>

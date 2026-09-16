@@ -16,9 +16,8 @@ function capitalizeWords(str) {
 
 async function loadPokemonNames() {
   if (pokemonNames.length) return pokemonNames;
-  const response = await fetch("https://pokeapi.co/api/v2/pokemon?limit=2000");
-  const data = await response.json();
-  pokemonNames = data.results.map(item => item.name);
+  const data = await PokemonApi.listPokemon();
+  pokemonNames = data.map(item => item.name);
   return pokemonNames;
 }
 
@@ -87,7 +86,7 @@ async function renderBreedingResults(name) {
       ${groupCards.map(group => `
         <div class="breeding-card">
           <h4>${capitalizeWords(group.name)}</h4>
-          <div class="pokemon-chip-row">${group.pokemon.map(name => `<span class="pokemon-chip">${capitalizeWords(name)}</span>`).join("")}</div>
+          <div class="pokemon-chip-row">${group.pokemon.map(name => `<a class="pokemon-chip" href="PokemonDatabase.html?pokemon=${encodeURIComponent(name)}" title="Xem ${capitalizeWords(name)}">${capitalizeWords(name)}</a>`).join("")}</div>
         </div>
       `).join("")}
     </div>

@@ -9,7 +9,6 @@
 // dữ liệu dạng máy đọc được).
 // ========================================
 
-const POKE_API_BASE = "https://pokeapi.co/api/v2/pokemon";
 const POKE_API_ROOT = "https://pokeapi.co/api/v2";
 const SMOGON_STATS_BASE = "https://www.smogon.com/stats/";
 const CHAMPIONS_META_BASE = "https://eurekaffeine.github.io/pokemon-champions-scraper/";
@@ -28,10 +27,9 @@ let pokemonNameListPromise = null;
 function loadPokemonNameList() {
     if (pokemonNameListPromise) return pokemonNameListPromise;
 
-    pokemonNameListPromise = fetch(`${POKE_API_BASE}?limit=2000`)
-        .then(res => res.json())
+    pokemonNameListPromise = PokemonApi.listPokemon()
         .then(data => {
-            pokemonNameList = data.results.map(p => ({
+            pokemonNameList = data.map(p => ({
                 name: p.name,
                 id: p.url.split("/").filter(Boolean).pop()
             }));
@@ -65,9 +63,7 @@ async function getPokemonSprite(id) {
     if (spriteCache.has(id)) return spriteCache.get(id);
 
     try {
-        const res = await fetch(`${POKE_API_BASE}/${id}`);
-        if (!res.ok) throw new Error("not found");
-        const data = await res.json();
+        const data = await PokemonApi.getPokemon(id);
         const sprite =
             data.sprites?.other?.["official-artwork"]?.front_default ||
             data.sprites?.front_default || null;
@@ -244,8 +240,7 @@ async function loadChampionsRankings(formatKey) {
 
     const entries = await Promise.all(usage.map(async entry => {
         try {
-            const pokemonResponse = await fetch(`${POKE_API_BASE}/${entry.dex_id}`);
-            const pokemon = pokemonResponse.ok ? await pokemonResponse.json() : null;
+            const pokemon = await PokemonApi.getPokemon(entry.dex_id).catch(() => null);
             return {
                 id: pokemon?.name || normalizeShowdownId(entry.name),
                 spriteId: pokemon?.name || normalizeShowdownId(entry.name),
@@ -583,9 +578,13 @@ async function fetchSmogonSpeciesData(displayName, formatKey) {
 }
 
 async function getChampionsResourceName(resource, id) {
-    const response = await fetch(`${POKE_API_ROOT}/${resource}/${id}`);
-    if (!response.ok) throw new Error(`Unknown ${resource} id: ${id}`);
-    const data = await response.json();
+    const data = resource === "move"
+        ? await PokemonApi.getMove(id)
+        : await (async () => {
+            const response = await fetch(`${POKE_API_ROOT}/${resource}/${id}`);
+            if (!response.ok) throw new Error(`Unknown ${resource} id: ${id}`);
+            return response.json();
+        })();
     return capitalizeWords(data.name.replace(/-/g, " "));
 }
 
@@ -692,14 +691,12 @@ async function loadPokemonMeta(rawId, pokeApiIdRaw, championsDexId) {
 
     try {
 
-        const pokeRes = await fetch(`${POKE_API_BASE}/${pokeApiId}`);
-        let pokeData = pokeRes.ok ? await pokeRes.json() : null;
+        let pokeData = await PokemonApi.getPokemon(pokeApiId).catch(() => null);
 
         // Một số loài chỉ tồn tại dưới dạng form theo giới tính trên PokeAPI
         // (vd: Basculegion không có "basculegion" trơn, chỉ có -male/-female)
         if (!pokeData) {
-            const fallbackRes = await fetch(`${POKE_API_BASE}/${pokeApiId}-male`).catch(() => null);
-            if (fallbackRes && fallbackRes.ok) pokeData = await fallbackRes.json();
+            pokeData = await PokemonApi.getPokemon(`${pokeApiId}-male`).catch(() => null);
         }
 
         const displayNameForSmogon = capitalizeWords((pokeData?.name || showdownId).replace(/-/g, " "));
@@ -720,10 +717,8 @@ async function loadPokemonMeta(rawId, pokeApiIdRaw, championsDexId) {
         // Nếu đã tự chuyển sang tên form khác (vd: -Mega), cập nhật lại sprite cho đúng
         if (result.usedName && result.usedName !== displayNameForSmogon) {
             const altSlug = result.usedName.toLowerCase().replace(/\s+/g, "-");
-            const altPokeRes = await fetch(`${POKE_API_BASE}/${altSlug}`).catch(() => null);
-            if (altPokeRes && altPokeRes.ok) {
-                pokeData = await altPokeRes.json();
-            }
+            const altPokeData = await PokemonApi.getPokemon(altSlug).catch(() => null);
+            if (altPokeData) pokeData = altPokeData;
         }
 
         if (requestId !== detailRequestId) return;

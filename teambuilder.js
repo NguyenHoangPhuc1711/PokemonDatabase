@@ -3,7 +3,6 @@
 // Dùng dữ liệu hệ từ typechart-data.js, sprite/hệ Pokémon từ PokeAPI
 // ========================================
 
-const POKE_API_BASE = "https://pokeapi.co/api/v2/pokemon";
 const MAX_TEAM_SIZE = 5;
 
 let team = [];
@@ -18,6 +17,9 @@ const tbTeamGrid = document.getElementById("tb-team-grid");
 const tbTeamCount = document.getElementById("tb-team-count");
 const tbAnalysis = document.getElementById("tb-analysis");
 const tbClearBtn = document.getElementById("tb-clear-btn");
+const tbTeamName = document.getElementById("tb-team-name");
+const tbSaveBtn = document.getElementById("tb-save-btn");
+const tbSaveStatus = document.getElementById("tb-save-status");
 
 function exportTeamShowdown(teamMembers) {
     return teamMembers.map(pokemon => {
@@ -70,10 +72,9 @@ function loadPokemonNameList() {
         }
     }
 
-    pokemonNameListPromise = fetch(`${POKE_API_BASE}?limit=2000`)
-        .then(res => res.json())
+    pokemonNameListPromise = PokemonApi.listPokemon()
         .then(data => {
-            pokemonNameList = data.results.map(p => ({
+            pokemonNameList = data.map(p => ({
                 name: p.name,
                 id: p.url.split("/").filter(Boolean).pop()
             }));
@@ -166,9 +167,7 @@ async function addPokemonToTeam(pokeApiName) {
     if (team.some(p => p.id === pokeApiName)) return;
 
     try {
-        const res = await fetch(`${POKE_API_BASE}/${pokeApiName}`);
-        if (!res.ok) return;
-        const data = await res.json();
+        const data = await PokemonApi.getPokemon(pokeApiName);
 
         team.push({
             id: data.name,
@@ -197,6 +196,30 @@ tbClearBtn.addEventListener("click", () => {
     team = [];
     renderTeam();
     renderAnalysis();
+});
+
+tbSaveBtn.addEventListener("click", async () => {
+    if (!window.AppApi?.getUser()) {
+        window.AppAuth?.open("login");
+        return;
+    }
+    if (!team.length) {
+        tbSaveStatus.textContent = "Hãy thêm ít nhất một Pokémon.";
+        return;
+    }
+    tbSaveBtn.disabled = true;
+    tbSaveStatus.textContent = "Đang lưu...";
+    try {
+        await window.AppApi.request("/api/team", {
+            method: "POST",
+            body: JSON.stringify({ name: tbTeamName.value.trim() || "My Team", pokemon_json: team })
+        });
+        tbSaveStatus.textContent = "Đã lưu đội hình vào tài khoản.";
+    } catch (error) {
+        tbSaveStatus.textContent = error.message;
+    } finally {
+        tbSaveBtn.disabled = false;
+    }
 });
 
 
@@ -245,9 +268,7 @@ function renderTeam() {
 async function getMoveData(move) {
     if (moveDataCache.has(move.url)) return moveDataCache.get(move.url);
     try {
-        const response = await fetch(move.url);
-        if (!response.ok) return null;
-        const data = await response.json();
+        const data = await PokemonApi.getMove(move.name);
         const result = {
             name: data.name,
             type: data.type?.name,

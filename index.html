@@ -5,6 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PokeDex | PokemonInformation</title>
+    <meta name="description" content="Khám phá Pokédex, chỉ số, hệ, tiến hóa và dữ liệu Pokémon chính xác cho mọi Trainer.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Pokémon Information | Pokédex">
+    <meta property="og:description" content="Khám phá Pokédex, chỉ số, hệ, tiến hóa và dữ liệu Pokémon chính xác cho mọi Trainer.">
+    <meta property="og:image" content="https://pokemonif.com/hero-pokemon.png">
+    <meta property="og:site_name" content="PokemonInformation">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="stylesheet" href="style.css?v=20260916-2">
     <style>
         .home-nav-link {
@@ -74,6 +81,21 @@
                 </div>
             </div>
         </section>
+
+        <section class="home-news" aria-labelledby="news-heading">
+            <div class="news-heading-row">
+                <div>
+                    <span class="news-kicker">PokemonInformation / Newsroom</span>
+                    <h2 id="news-heading">Tin tức Pokémon mới nhất</h2>
+                    <p>Theo dõi những tựa game đang được Trainer quan tâm nhất.</p>
+                </div>
+                <span class="news-live"><i></i> Cập nhật 16.09.2026</span>
+            </div>
+
+            <div class="news-grid" id="news-feed" aria-live="polite">
+                <p class="news-loading">Đang cập nhật tin Pokémon Champions...</p>
+            </div>
+        </section>
     </main>
 
     <script>
@@ -140,7 +162,10 @@
     </script>
     <script src="ads.js"></script>
     <script src="seo.js"></script>
+    <script src="api-client.js"></script>
+    <script src="auth.js"></script>
     <script src="language.js"></script>
+    <script src="news.js"></script>
 </body>
 
 </html>

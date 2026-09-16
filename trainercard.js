@@ -5,7 +5,6 @@
 // Toàn bộ chạy client-side bằng Canvas, không cần AI / server.
 // ========================================
 
-const POKE_API_BASE = "https://pokeapi.co/api/v2/pokemon";
 const PORTRAIT_W = 1080, PORTRAIT_H = 1920;
 const LANDSCAPE_W = 1920, LANDSCAPE_H = 1080;
 let CANVAS_W = PORTRAIT_W;
@@ -123,10 +122,9 @@ const TRAINER_CARD_STORAGE_KEY = "pokemon-trainer-cards-v1";
 
 function loadPokemonNameList() {
     if (pokemonNameListPromise) return pokemonNameListPromise;
-    pokemonNameListPromise = fetch(`${POKE_API_BASE}?limit=2000`)
-        .then(res => res.json())
+    pokemonNameListPromise = PokemonApi.listPokemon()
         .then(data => {
-            pokemonNameList = data.results.map(p => ({
+            pokemonNameList = data.map(p => ({
                 name: p.name,
                 id: p.url.split("/").filter(Boolean).pop()
             }));
@@ -157,9 +155,7 @@ async function fetchPokemonData(name) {
     let data = pokemonDataCache.get(name);
     if (data) return data;
     try {
-        const res = await fetch(`${POKE_API_BASE}/${name}`);
-        if (!res.ok) return null;
-        data = await res.json();
+        data = await PokemonApi.getPokemon(name);
         pokemonDataCache.set(name, data);
         return data;
     } catch {
@@ -2261,13 +2257,8 @@ generateBtn.addEventListener("click", async () => {
 
 downloadBtn.addEventListener("click", handleDownload);
 
-const shareBtn = document.createElement("button");
-shareBtn.type = "button";
-shareBtn.textContent = "🔗 Chia sẻ link";
-shareBtn.className = "tc-generate-btn";
-shareBtn.style.marginTop = "10px";
-shareBtn.addEventListener("click", shareCardLink);
-downloadBtn.parentNode.appendChild(shareBtn);
+const shareBtn = document.getElementById("tc-save-share-btn");
+shareBtn?.addEventListener("click", shareCardLink);
 
 const savedCardList = document.createElement("div");
 savedCardList.id = "saved-card-list";
@@ -2317,18 +2308,43 @@ function renderSavedCards() {
     });
 }
 
-function shareCardLink() {
+async function shareCardLink() {
     const payload = {
         name: nameInput.value.trim() || "Trainer",
         tag: tagInput.value.trim() || "Elite Trainer",
         hero: heroPokemon ? heroPokemon.name : "",
         accent: frameStyle,
-        timestamp: Date.now()
+        team: teamMembers.map(member => member.name)
     };
-    const encoded = encodeURIComponent(JSON.stringify(payload));
-    const base = `${window.location.origin}${window.location.pathname}?card=${encoded}`;
-    navigator.clipboard.writeText(base).catch(() => {});
-    alert("Link thẻ đã được sao chép vào clipboard.");
+    const status = document.getElementById("tc-share-status");
+    if (status) status.textContent = "Đang tạo link chia sẻ...";
+    try {
+        const saved = await window.AppApi.request("/api/trainer-card", {
+            method: "POST",
+            body: JSON.stringify({ name: payload.name, card_data_json: payload, image_data_url: canvas.toDataURL("image/png") })
+        });
+        const base = `${window.location.origin}${window.location.pathname}?id=${encodeURIComponent(saved.slug)}`;
+        await navigator.clipboard.writeText(base).catch(() => {});
+        if (status) status.textContent = `Đã sao chép link: ${base}`;
+    } catch (error) {
+        if (status) status.textContent = error.message;
+    }
+}
+
+async function loadSharedTrainerCard() {
+    const slug = new URLSearchParams(window.location.search).get("id");
+    if (!slug) return;
+    try {
+        const saved = await window.AppApi.request(`/api/trainer-card/${encodeURIComponent(slug)}`);
+        const data = saved.card_data_json || {};
+        nameInput.value = data.name || "";
+        tagInput.value = data.tag || "";
+        if (data.hero) await setHeroPokemon(data.hero);
+        await renderCard();
+    } catch (error) {
+        const status = document.getElementById("tc-share-status");
+        if (status) status.textContent = "Không thể tải thẻ được chia sẻ.";
+    }
 }
 
 function handleDownload() {
@@ -2375,6 +2391,7 @@ function handleDownload() {
 applyCardFormat();
 collapsePreview();
 renderCard();
+loadSharedTrainerCard();
 
 
 

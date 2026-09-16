@@ -4,7 +4,6 @@
 // (dùng chung dữ liệu hệ từ typechart-data.js)
 // ========================================
 
-const POKE_API_BASE = "https://pokeapi.co/api/v2/pokemon";
 const BATTLE_API_BASE = "https://championsbattledata.com/api";
 const CHAT_HISTORY_KEY = "pokemon-chat-history-v1";
 
@@ -23,10 +22,9 @@ let pokemonNameSet = null; // Set các tên hợp lệ, dùng để tra cứu lo
 function loadPokemonNameList() {
     if (pokemonNameListPromise) return pokemonNameListPromise;
 
-    pokemonNameListPromise = fetch(`${POKE_API_BASE}?limit=2000`)
-        .then(res => res.json())
+    pokemonNameListPromise = PokemonApi.listPokemon()
         .then(data => {
-            pokemonNameList = data.results.map(p => ({
+            pokemonNameList = data.map(p => ({
                 name: p.name,
                 id: p.url.split("/").filter(Boolean).pop()
             }));
@@ -246,12 +244,33 @@ async function sendMessage() {
     const typingBubble = addTypingIndicator();
 
     try {
-        await handleUserMessage(text);
+        const aiResponse = await requestAiReply(text);
+        if (aiResponse) {
+            addMessage(escapeHtml(aiResponse).replace(/\n/g, "<br>"), "bot");
+            contextualSuggestions(text);
+        } else {
+            await handleUserMessage(text);
+        }
     } catch (error) {
         console.error(error);
         addMessage("😵 Có lỗi xảy ra khi xử lý câu hỏi này. Bạn thử lại nhé!", "bot");
     } finally {
         typingBubble.remove();
+    }
+}
+
+async function requestAiReply(message) {
+    try {
+        const response = await fetch("/api/chatbot", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message })
+        });
+        if (!response.ok) return null;
+        const data = await response.json();
+        return typeof data.reply === "string" ? data.reply : null;
+    } catch {
+        return null;
     }
 }
 
@@ -409,12 +428,7 @@ async function tryFetchPokemon(candidate) {
     if (pokeApiCache.has(candidate)) return pokeApiCache.get(candidate);
 
     try {
-        const res = await fetch(`${POKE_API_BASE}/${candidate}`);
-        if (!res.ok) {
-            pokeApiCache.set(candidate, null);
-            return null;
-        }
-        const data = await res.json();
+        const data = await PokemonApi.getPokemon(candidate);
         pokeApiCache.set(candidate, data);
         return data;
     } catch {

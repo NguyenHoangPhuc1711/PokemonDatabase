@@ -1,0 +1,1 @@
+create index if not exists news_items_published_idx on public.news_items (is_published, published_at desc);

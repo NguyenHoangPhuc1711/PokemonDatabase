@@ -3,9 +3,6 @@
 // Công thức Pokemon chuẩn: Lv.50, IV 31, EV và Nature do người dùng chọn.
 // ========================================
 
-const POKE_API_BASE = "https://pokeapi.co/api/v2/pokemon";
-const MOVE_API_BASE = "https://pokeapi.co/api/v2/move";
-
 let pokemonNameList = null;
 let pokemonNameListPromise = null;
 
@@ -176,10 +173,9 @@ function loadPokemonNameList() {
         }
     }
 
-    pokemonNameListPromise = fetch(`${POKE_API_BASE}?limit=2000`)
-        .then(res => res.json())
+    pokemonNameListPromise = PokemonApi.listPokemon()
         .then(data => {
-            pokemonNameList = data.results.map(p => ({
+            pokemonNameList = data.map(p => ({
                 name: p.name,
                 id: p.url.split("/").filter(Boolean).pop()
             }));
@@ -277,9 +273,7 @@ setupSearchBox(defInput, defSuggestions, "#dc-def-wrap", pickDefender);
 
 async function pickAttacker(pokeApiName) {
     try {
-        const res = await fetch(`${POKE_API_BASE}/${pokeApiName}`);
-        if (!res.ok) return;
-        const data = await res.json();
+        const data = await PokemonApi.getPokemon(pokeApiName);
         data.isFullyEvolved = await getFullyEvolvedStatus(data);
 
         attacker = { data };
@@ -309,9 +303,7 @@ async function pickAttacker(pokeApiName) {
 
 async function pickDefender(pokeApiName) {
     try {
-        const res = await fetch(`${POKE_API_BASE}/${pokeApiName}`);
-        if (!res.ok) return;
-        const data = await res.json();
+        const data = await PokemonApi.getPokemon(pokeApiName);
         data.isFullyEvolved = await getFullyEvolvedStatus(data);
 
         defender = { data };
@@ -534,9 +526,8 @@ moveSelect.addEventListener("change", () => {
 
 async function loadSelectedMove(moveUrl) {
     try {
-        const res = await fetch(moveUrl);
-        if (!res.ok) return;
-        const data = await res.json();
+        const moveName = moveUrl.split("/").filter(Boolean).pop();
+        const data = await PokemonApi.getMove(moveName);
 
         selectedMove = {
             name: data.name,

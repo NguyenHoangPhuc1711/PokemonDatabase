@@ -1,6 +1,12 @@
 const SEO_API_ROOT = "https://pokeapi.co/api/v2";
 const SEO_KIND_LABELS = { pokemon: "Pokémon", types: "Type", moves: "Move", abilities: "Ability", items: "Item" };
 
+if (!document.querySelector('script[src$="/auth.js"], script[src="auth.js"], script[src="../../auth.js"]')) {
+    const authScript = document.createElement("script");
+    authScript.src = "/auth.js";
+    document.head.appendChild(authScript);
+}
+
 function seoSlug(value) {
     return String(value || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
@@ -10,6 +16,9 @@ function seoName(value) {
 }
 
 function seoLink(kind, slug, label = seoName(slug)) {
+    if (kind === "pokemon") {
+        return `<a href="../../PokemonDatabase.html?pokemon=${encodeURIComponent(slug)}">${label}</a>`;
+    }
     return `<a href="../../${kind}/${seoSlug(slug)}/">${label}</a>`;
 }
 
@@ -93,6 +102,38 @@ function renderCollection(data, route) {
     details.innerHTML = `${itemSummary}<section class="seo-card"><h2>Related Pokémon</h2><div class="seo-link-list">${seoList(entries, "pokemon") || "<span>No related Pokémon listed by PokéAPI.</span>"}</div></section><section class="seo-card"><h2>Explore Database</h2><div class="seo-link-list"><a href="../../PokemonDatabase.html">Full Pokédex</a><a href="../../Meta.html">Competitive Meta</a></div></section>`;
 }
 
+async function fetchSeoData(endpoint) {
+    const cacheKey = `pokemon-seo-cache:${endpoint}`;
+    const cacheTtl = 24 * 60 * 60 * 1000;
+    try {
+        const cached = JSON.parse(localStorage.getItem(cacheKey) || "null");
+        if (cached && Date.now() - cached.timestamp < cacheTtl) return cached.data;
+        if (cached) localStorage.removeItem(cacheKey);
+    } catch {
+        localStorage.removeItem(cacheKey);
+    }
+
+    const response = await fetch(endpoint);
+    if (!response.ok) throw new Error("Not found");
+    const data = await response.json();
+    try {
+        localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data }));
+    } catch {
+        return data;
+    }
+    return data;
+}
+
+async function fetchSeoPokemon(name, fallbackEndpoint) {
+    try {
+        const response = await fetch(`../../api/pokemon-cache?name=${encodeURIComponent(name)}`);
+        if (response.ok) return response.json();
+    } catch {
+        // Fall back to the source endpoint while the cache is unavailable.
+    }
+    return fetchSeoData(fallbackEndpoint);
+}
+
 async function loadSeoPage() {
     const route = getSeoRoute();
     if (!route || !route.slug) return;
@@ -100,9 +141,9 @@ async function loadSeoPage() {
     const fallbackDescription = `${seoName(route.slug)} ${SEO_KIND_LABELS[route.kind]} data, related Pokémon, competitive information and useful database links.`;
     renderSeoShell(route, route.slug, fallbackDescription);
     try {
-        const response = await fetch(endpoint);
-        if (!response.ok) throw new Error("Not found");
-        const data = await response.json();
+        const data = route.kind === "pokemon"
+            ? await fetchSeoPokemon(route.slug, endpoint)
+            : await fetchSeoData(endpoint);
         setSeoMeta(route, data.name, `${seoName(data.name)} ${SEO_KIND_LABELS[route.kind]} data, stats, related Pokémon and competitive links from PokémonIF.`);
         if (route.kind === "pokemon") renderPokemon(data); else renderCollection(data, route);
     } catch {

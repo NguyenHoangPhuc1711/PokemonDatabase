@@ -14,9 +14,7 @@ function capitalizeWords(str) {
 }
 
 async function fetchPokemon(name) {
-  const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name.toLowerCase().trim()}`);
-  if (!response.ok) throw new Error("Pokémon không tồn tại");
-  return response.json();
+  return PokemonApi.getPokemon(name);
 }
 
 function renderCompareCard(pokemon) {

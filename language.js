@@ -1,20 +1,30 @@
 const LANGUAGE_STORAGE_KEY = "pokemon-information-language";
 const POKEAPI_CACHE_PREFIX = "pokemon-pokeapi-cache:";
 const POKEAPI_CACHE_TTL = 24 * 60 * 60 * 1000;
+const REMOTE_CACHE_RULES = [
+    { match: "pokeapi.co/api/v2/", prefix: "pokemon-pokeapi-cache:", ttl: POKEAPI_CACHE_TTL },
+    { match: "eurekaffeine.github.io/pokemon-champions-scraper/", prefix: "pokemon-champions-meta-cache:", ttl: 30 * 60 * 1000 },
+    { match: "www.smogon.com/stats/", prefix: "pokemon-smogon-cache:", ttl: 6 * 60 * 60 * 1000 }
+];
+
+function getRemoteCacheRule(url) {
+    return REMOTE_CACHE_RULES.find(rule => url.includes(rule.match));
+}
 
 function installPokeApiCache() {
     const nativeFetch = window.fetch.bind(window);
     window.fetch = async (input, init = {}) => {
         const method = (init.method || "GET").toUpperCase();
         const url = typeof input === "string" ? input : input?.url || "";
-        if (method !== "GET" || !url.includes("pokeapi.co/api/v2/")) {
+        const rule = method === "GET" ? getRemoteCacheRule(url) : null;
+        if (!rule || init.cache === "no-store") {
             return nativeFetch(input, init);
         }
 
-        const key = `${POKEAPI_CACHE_PREFIX}${url}`;
+        const key = `${rule.prefix}${url}`;
         try {
             const cached = JSON.parse(localStorage.getItem(key) || "null");
-            if (cached && Date.now() - cached.timestamp < POKEAPI_CACHE_TTL) {
+            if (cached && Date.now() - cached.timestamp < rule.ttl) {
                 return new Response(cached.body, { status: cached.status || 200, headers: cached.headers || {} });
             }
             if (cached) localStorage.removeItem(key);
@@ -489,9 +499,8 @@ function setupGlobalSearch() {
 
     async function loadPokemonNames() {
         if (pokemonNamesPromise) return pokemonNamesPromise;
-        pokemonNamesPromise = fetch("https://pokeapi.co/api/v2/pokemon?limit=2000")
-            .then(response => response.json())
-            .then(data => data.results.map(item => ({
+        pokemonNamesPromise = PokemonApi.listPokemon()
+            .then(data => data.map(item => ({
                 name: item.name,
                 id: item.url.split("/").filter(Boolean).pop()
             })))

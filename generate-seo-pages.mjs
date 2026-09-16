@@ -29,6 +29,9 @@ function pageTemplate(kind, itemName, description) {
     <meta property="og:type" content="article">
     <meta property="og:title" content="${title}">
     <meta property="og:description" content="${description}">
+    <meta property="og:image" content="https://pokemonif.com/hero-pokemon.png">
+    <meta property="og:site_name" content="${siteName}">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="stylesheet" href="../../style.css?v=20260916-2">
     <link rel="stylesheet" href="../../seo-page.css">
 </head>
@@ -43,6 +46,8 @@ function pageTemplate(kind, itemName, description) {
         <div class="seo-grid" id="seo-details"><section class="seo-card"><h2>Loading data</h2><p class="seo-loading">Loading live data from PokéAPI...</p></section></div>
     </main>
     <script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: title, description, url: `https://pokemonif.com/${kind}/${slug(itemName)}/` })}</script>
+    <script src="../../api-client.js"></script>
+    <script src="../../auth.js"></script>
     <script src="../../seo-page.js"></script>
 </body>
 </html>`;
@@ -70,7 +75,7 @@ async function writeIndex(kind, names) {
     const links = names.slice(0, 100).map(name => `<li><a href="${slug(name)}/">${displayName(name)}</a></li>`).join("");
     const route = join(root, kind, "index.html");
     await mkdir(join(root, kind), { recursive: true });
-    await writeFile(route, `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${displayName(kind)} Database | ${siteName}</title><meta name="description" content="Browse the ${kind} database on ${siteName}."><link rel="stylesheet" href="../style.css?v=20260916-2"><link rel="stylesheet" href="../seo-page.css"></head><body class="seo-page"><main class="seo-main"><section class="seo-hero-card"><span class="seo-kicker">${kind} database</span><h1>${displayName(kind)} Database</h1><p class="seo-summary">Browse searchable ${kind} pages with related Pokémon and competitive links.</p></section><section class="seo-card"><ul class="seo-link-list">${links}</ul></section></main></body></html>`, "utf8");
+    await writeFile(route, `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${displayName(kind)} Database | ${siteName}</title><meta name="description" content="Browse the ${kind} database on ${siteName}."><meta property="og:type" content="website"><meta property="og:title" content="${displayName(kind)} Database | ${siteName}"><meta property="og:description" content="Browse the ${kind} database on ${siteName}."><meta property="og:image" content="https://pokemonif.com/hero-pokemon.png"><meta property="og:site_name" content="${siteName}"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="../style.css?v=20260916-2"><link rel="stylesheet" href="../seo-page.css"></head><body class="seo-page"><main class="seo-main"><section class="seo-hero-card"><span class="seo-kicker">${kind} database</span><h1>${displayName(kind)} Database</h1><p class="seo-summary">Browse searchable ${kind} pages with related Pokémon and competitive links.</p></section><section class="seo-card"><ul class="seo-link-list">${links}</ul></section></main></body></html>`, "utf8");
 }
 
 async function writeSitemap(kind, names) {

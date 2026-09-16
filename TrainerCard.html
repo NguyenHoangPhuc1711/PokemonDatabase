@@ -6,6 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Trainer Card | PokemonInformation</title>
+    <meta name="description" content="Tạo Trainer Card Pokémon cá nhân với avatar, rank, team và Pokémon đồng hành.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Trainer Card Generator | PokemonInformation">
+    <meta property="og:description" content="Tạo Trainer Card Pokémon cá nhân với avatar, rank, team và Pokémon đồng hành.">
+    <meta property="og:image" content="https://pokemonif.com/hero-pokemon.png">
+    <meta property="og:site_name" content="PokemonInformation">
+    <meta name="twitter:card" content="summary_large_image">
 
     <link rel="stylesheet" href="style.css?v=20260916-2">
 
@@ -1058,6 +1065,8 @@
 
                 <button class="tc-generate-btn" id="tc-generate-btn" type="button">🎨 Tạo ảnh</button>
                 <button class="tc-download-btn" id="tc-download-btn" type="button">⬇️ Tải ảnh (1080×1920)</button>
+                <button class="tc-generate-btn" id="tc-save-share-btn" type="button">🔗 Lưu & chia sẻ công khai</button>
+                <p id="tc-share-status" class="tc-preview-note" role="status"></p>
             </div>
 
             <!-- PREVIEW -->
@@ -1083,7 +1092,7 @@
 
     <!-- FOOTER -->
     <footer>
-        <p>© 2026 Pokédex Database</p>
+        <p>© 2026 PokemonInformation</p>
     </footer>
 
 
@@ -1107,6 +1116,8 @@
 
     <script src="ads.js"></script>
     <script src="seo.js"></script>
+    <script src="api-client.js"></script>
+    <script src="auth.js"></script>
     <script src="language.js"></script>
     <script src="typechart-data.js"></script>
     <script src="trainercard.js"></script>
